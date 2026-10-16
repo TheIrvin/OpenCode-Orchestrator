@@ -1,5 +1,5 @@
 {
-  "$comment": "Free model catalog + families + fallback chains per role. Single source of truth for the model-fallback plugin and /modelos.",
+  "$comment": "Catálogo de modelos gratuitos + familias + cadenas de respaldo por rol. Fuente única para el plugin model-fallback y /modelos.",
   "provider": "opencode",
   "cooldownSeconds": 300,
   "families": {

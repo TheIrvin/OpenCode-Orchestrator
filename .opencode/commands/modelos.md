@@ -1,22 +1,22 @@
 ---
-description: See model families, which are in cooldown, and per-role fallback
+description: Ver familias de modelos, cuáles están en cooldown y el respaldo por rol
 agent: orchestrator
 model: opencode/beam-free#high
 subagent: false
 ---
 
-Show the free-model status and compute a fallback chain.
-Everything is in the global store (`~/.config/opencode/orquestador/`):
+Muestra el estado de los modelos gratuitos y calcula una cadena de respaldo.
+Todo está en el almacén global (`~/.config/opencode/orquestador/`):
 
-1. Run `node tools/models-status.mjs` (a single call) and read its output.
-   If the script is not in the project, read
-   `~/.config/opencode/orquestador/models.json` and `model-cooldown.json` directly.
-2. Present a table: **model · family · status** (available / in cooldown
-   with remaining seconds).
-3. For each role, indicate the current **healthy model** (first model in its chain that
-   is not in cooldown), avoiding repeating the failed family.
-4. Remember the `model-fallback` plugin rotates on its own: this is visibility only.
-5. If the quota has already reset and you want to reactivate all models, delete
-   `~/.config/opencode/orquestador/model-cooldown.json` (or edit it to empty it).
+1. Ejecuta `node tools/models-status.mjs` (una sola llamada) y lee su salida.
+   Si el script no está en el proyecto, lee directamente
+   `~/.config/opencode/orquestador/models.json` y `model-cooldown.json`.
+2. Presenta en una tabla: **modelo · familia · estado** (disponible / en cooldown
+   con segundos restantes).
+3. Para cada rol, indica el **modelo sano** actual (primer modelo de su cadena que
+   no está en cooldown), evitando repetir la familia que falló.
+4. Recuerda que el plugin `model-fallback` rota solo: esto es solo visibilidad.
+5. Si la cuota ya se restableció y quieres reactivar todos los modelos, borra
+   `~/.config/opencode/orquestador/model-cooldown.json` (o edítalo para vaciarlo).
 
-Nuance to detail if the user asks for it: $ARGUMENTS
+Matiz a detallar si el usuario lo pide: $ARGUMENTS

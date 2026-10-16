@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * memory-digest — compact memory summary in ONE single call.
+ * memory-digest — resumen compacto de la memoria en UNA sola llamada.
  *
- * Keeps agents from reading several files separately: prints a short digest
- * of the project memory and of the global errors.
+ * Evita que los agentes lean varios archivos por separado: imprime un digest
+ * corto de la memoria del proyecto y de los errores globales.
  *
- *   node tools/memory-digest.mjs [project-directory]
+ *   node tools/memory-digest.mjs [directorio-proyecto]
  *
- * No dependencies. Bounded output (<= 25 lines).
+ * Sin dependencias. Salida acotada (<= 25 líneas).
  */
 
 import { readFile, readdir, stat } from "node:fs/promises"
@@ -29,9 +29,9 @@ async function localMemory() {
       const info = await stat(path.join(memDir, entry.name))
       files.push(`${entry.name} (${info.size}B)`)
     }
-    return files.length ? files.join(", ") : "(empty)"
+    return files.length ? files.join(", ") : "(vacía)"
   } catch {
-    return "(does not exist)"
+    return "(no existe)"
   }
 }
 
@@ -64,11 +64,11 @@ async function globalErrors(limit = 5) {
 const [mem, errs] = await Promise.all([localMemory(), globalErrors()])
 
 const out = [
-  `project: ${project}`,
-  `local memory: ${mem}`,
-  `global errors: ${errs.total} (${errs.top.length} frequent types)`,
+  `proyecto: ${project}`,
+  `memoria local: ${mem}`,
+  `errores globales: ${errs.total} (${errs.top.length} tipos frecuentes)`,
 ]
 for (const e of errs.top) out.push(`  x${e.n} · ${e.tool} · ${e.error}`)
-if (!errs.top.length) out.push("  (no recorded errors)")
+if (!errs.top.length) out.push("  (sin errores registrados)")
 
 console.log(out.slice(0, 25).join("\n"))

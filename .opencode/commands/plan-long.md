@@ -1,10 +1,11 @@
 ---
-description: Phased plan for migrations and extensive work
+description: Plan por fases para migraciones y trabajos extensos
 agent: planner-long
 model: opencode/nemotron-3-ultra-free
 subagent: false
 ---
 
-Plan this extensive work in phases: $ARGUMENTS
+Planifica por fases este trabajo extenso: $ARGUMENTS
 
-Each phase must be deliverable and verifiable; mark synchronization points, what goes in parallel, rollback milestones, and a one-page executive summary.
+Cada fase debe ser entregable y verificable; marca puntos de sincronización,
+qué va en paralelo, hitos de reversión y un resumen ejecutivo de una página.

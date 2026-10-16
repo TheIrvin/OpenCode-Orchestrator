@@ -1,17 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  // Default session model. Beam is the best strong "generalist"
-  // free model (1M of context + variants up to `max`). The orchestrator and
-  // subagents pick their own variant/reasoning in their definition.
+  // Modelo por defecto de la sesión. Beam es el mejor "generalista fuerte"
+  // gratuito (1M de contexto + variantes hasta `max`). El orquestador y los
+  // subagentes eligen su propia variante/razonamiento en su definición.
   "model": "opencode/beam-free",
 
-  // When opening the app, it starts in the flow's director.
+  // Al abrir la app, se arranca en el director del flujo.
   "default_agent": "orchestrator",
 
   // ---------------------------------------------------------------------------
-  // Permissions (ordered rules: the last match wins).
-  // Comfortable base for automation, with brakes on destructive actions.
+  // Permisos (reglas ordenadas: gana la última coincidencia).
+  // Base cómoda para automatización, con frenos en acciones destructivas.
   // ---------------------------------------------------------------------------
   "permissions": [
     { "action": "shell", "resource": "*", "effect": "allow" },
@@ -27,7 +27,7 @@
   ],
 
   // ---------------------------------------------------------------------------
-  // Fine-tuning of built-in agents (merge by key: only changes the model).
+  // Ajustes finos de agentes integrados (merge por clave: solo cambia el modelo).
   // ---------------------------------------------------------------------------
   "agents": {
     "build": { "model": "opencode/deepseek-v4.1-flash-free#high" },
@@ -37,8 +37,8 @@
   },
 
   // ---------------------------------------------------------------------------
-  // Compaction: preserves more recent detail (free models have
-  // varied context budgets; DeepSeek/GLM/MiMo are 200k).
+  // Compactación: preserva más detalle reciente (los modelos free tienen
+  // presupuestos de contexto variados; DeepSeek/GLM/MiMo son de 200k).
   // ---------------------------------------------------------------------------
   "compaction": {
     "auto": true,
@@ -47,9 +47,9 @@
   },
 
   // ---------------------------------------------------------------------------
-  // MCP servers. Context7 (library documentation, remote/OAuth).
-  // Add more with:  opencode mcp add <name> --global --url <url>
-  // Local ones are exposed via Code Mode (tools.<server>.<tool>).
+  // Servidores MCP. Context7 (documentación de librerías, remoto/OAuth).
+  // Añade más con:  opencode mcp add <nombre> --global --url <url>
+  // Los locales se exponen por Code Mode (tools.<servidor>.<tool>).
   // ---------------------------------------------------------------------------
   "mcp": {
     "servers": {
@@ -57,9 +57,9 @@
         "type": "remote",
         "url": "https://mcp.context7.com/mcp"
       },
-      // Persistent memory (knowledge graph, JSONL). Survives across
-      // sessions and is shared by all agents. On Windows npx must be launched
-      // with "cmd /c" because npx.ps1 is blocked by policy.
+      // Memoria persistente (grafo de conocimiento, JSONL). Sobrevive entre
+      // sesiones y la comparten todos los agentes. En Windows hay que lanzar
+      // npx con "cmd /c" porque npx.ps1 está bloqueado por la política.
       "memory": {
         "type": "local",
         "command": ["cmd", "/c", "npx", "-y", "@modelcontextprotocol/server-memory"],
@@ -68,7 +68,7 @@
           "MEMORY_FILE_PATH": ".orquestador/memory/graph.jsonl"
         }
       }
-      // Ready-made examples to uncomment:
+      // Ejemplos listos para descomentar:
       // "sequential": {
       //   "type": "local",
       //   "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
@@ -85,12 +85,12 @@
   },
 
   // ---------------------------------------------------------------------------
-  // Warming: keeps the provider cache warm between prompts.
-  // Disabled by default (it consumes requests even when free).
-  // Uncomment to enable:
+  // Warming: mantiene la caché del proveedor caliente entre prompts.
+  // Desactivado por defecto (consume peticiones aunque sean gratis).
+  // Descomenta para activarlo:
   // ---------------------------------------------------------------------------
   // "warming": { "interval": "4 minutes", "duration": "30 minutes" },
 
-  // Local worktrees (isolated parallel execution):
+  // Worktrees locales (ejecución aislada en paralelo):
   "worktree": { "directory": "../.orquestador-trees" }
 }

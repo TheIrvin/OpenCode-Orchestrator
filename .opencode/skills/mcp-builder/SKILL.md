@@ -1,43 +1,43 @@
 ---
 name: MCP Builder
-description: How to use existing MCP servers (Context7, memory) and how to add or create your own, with Code Mode, permissions, and secure credentials.
+description: Cómo usar servidores MCP existentes (Context7, memoria) y cómo añadir o crear uno propio, con Code Mode, permisos y credenciales seguras.
 ---
 
-# MCP: using and creating servers
+# MCP: usar y crear servidores
 
-## What this is
+## Qué es esto
 
-MCP (Model Context Protocol) gives agents external tools and resources:
-documentation (Context7), memory (knowledge graph), browser, GitHub, etc.
+MCP (Model Context Protocol) da a los agentes herramientas y recursos externos:
+documentación (Context7), memoria (knowledge graph), navegador, GitHub, etc.
 
-## Context rule
+## Regla de contexto
 
-> MCP tools consume context. Add **only** the servers you
-> use. Each extra server makes every model step more expensive.
+> Las herramientas MCP consumen contexto. Añade **solo** los servidores que
+> uses. Cada servidor extra encarece cada paso del modelo.
 
-## Add a server (preferred: CLI)
+## Añadir un servidor (preferido: CLI)
 
-Preserves the rest of the project configuration:
+Preserva el resto de la configuración del proyecto:
 
 ```sh
-# Remote (OAuth by default)
+# Remoto (OAuth por defecto)
 opencode mcp add context7 --url https://mcp.context7.com/mcp
 
-# Global (for all your projects)
+# Global (para todos tus proyectos)
 opencode mcp add context7 --global --url https://mcp.context7.com/mcp
 
-# Local (stdio command)
+# Local (comando stdio)
 opencode mcp add everything -- npx -y @modelcontextprotocol/server-everything
 
 opencode mcp list
 ```
 
-If a remote server asks for authentication: in OpenCode run `/mcps`, choose the
-server, and **sign in in the browser**. Don't put keys in the JSON if it supports OAuth.
+Si un servidor remoto pide autenticación: en OpenCode ejecuta `/mcps`, elige el
+servidor y **firma en el navegador**. No metas claves en el JSON si admite OAuth.
 
-## Add by hand (JSON)
+## Añadir a mano (JSON)
 
-With `$schema` and, for secrets, environment substitution:
+Con `$schema` y, para secretos, sustitución de entorno:
 
 ```jsonc
 {
@@ -54,17 +54,17 @@ With `$schema` and, for secrets, environment substitution:
 }
 ```
 
-- **Windows + npx**: use `["cmd", "/c", "npx", ...]` (npx.ps1 is blocked
-  by the execution policy).
-- `codemode` is `true` by default: tools are exposed grouped as
-  `tools.<server>.<tool>` inside `execute`. Set `codemode: false` so they
-  appear in the provider's native tool list.
-- `disabled: true` configures without connecting.
+- **Windows + npx**: usa `["cmd", "/c", "npx", ...]` (npx.ps1 está bloqueado
+  por la política de ejecución).
+- `codemode` es `true` por defecto: las herramientas se exponen agrupadas en
+  `tools.<servidor>.<tool>` dentro de `execute`. Pon `codemode: false` para que
+  aparezcan en la lista nativa del proveedor.
+- `disabled: true` configura sin conectar.
 
-## Permissions
+## Permisos
 
-Tools can be hidden without disconnecting the server: the action name
-is `<server>_<tool>` (with `_` normalized).
+Se pueden ocultar herramientas sin desconectar el servidor: el nombre de acción
+es `<servidor>_<tool>` (con `_` normalizado).
 
 ```jsonc
 {
@@ -75,19 +75,19 @@ is `<server>_<tool>` (with `_` normalized).
 }
 ```
 
-MCP resources: actions `opencode_list_mcp_resources` and
-`opencode_read_mcp_resource` (resource `<server>:<uri>`).
+Recursos MCP: acciones `opencode_list_mcp_resources` y
+`opencode_read_mcp_resource` (recurso `<servidor>:<uri>`).
 
-## Create your own MCP
+## Crear un MCP propio
 
-A local MCP is a process that speaks MCP over **stdio**. Minimal template in
-Node (`mcp/notes-server/index.mjs` in this repo):
+Un MCP local es un proceso que habla MCP por **stdio**. Plantilla mínima en
+Node (`mcp/notes-server/index.mjs` en este repo):
 
-- Declare tools with an input JSON Schema.
-- Read/send JSON-RPC over stdin/stdout (one line per message).
-- Respond to `initialize`, `tools/list`, and `tools/call`.
+- Declara herramientas con JSON Schema de entrada.
+- Lee/envía JSON-RPC por stdin/stdout (una línea por mensaje).
+- Responde `initialize`, `tools/list` y `tools/call`.
 
-To connect your server:
+Para conectar tu servidor:
 
 ```jsonc
 {
@@ -104,18 +104,18 @@ To connect your server:
 }
 ```
 
-Best practices when creating one:
+Buenas prácticas al crear uno:
 
-1. **Few tools, very clear.** The model pays for each one.
-2. **Compact output** by default (pagination/`limit`).
-3. **No secrets** in the responses.
-4. **No destructive effects** without confirmation.
-5. Use the official SDK (`@modelcontextprotocol/sdk`) if it grows; `npx` to run it.
+1. **Pocas herramientas, muy claras.** El modelo paga por cada una.
+2. **Salidas compactas** por defecto (paginación/`limit`).
+3. **Sin secretos** en las respuestas.
+4. **Sin efectos destructivos** sin confirmación.
+5. Usa el SDK oficial (`@modelcontextprotocol/sdk`) si crece; `npx` para correr.
 
-## Debug
+## Depurar
 
-- `opencode mcp list` shows the connection status.
-- Startup errors are usually about command/path/environment: check that `npx`/`node`
-  exist and that `cwd` is correct.
-- A server that does not respond to `initialize` fails on the `startup` timeout
-  (30s by default); increase it per server with `timeout.startup`.
+- `opencode mcp list` muestra el estado de conexión.
+- Errores de arranque suelen ser de comando/ruta/entorno: revisa que `npx`/`node`
+  existan y que `cwd` sea correcto.
+- Un servidor que no responde al `initialize` cae por timeout de `startup`
+  (30s por defecto); auméntalo por servidor con `timeout.startup`.

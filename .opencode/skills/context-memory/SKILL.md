@@ -1,145 +1,143 @@
 ---
 name: Context & Memory
-description: How to persist and reuse context so you don't re-read already reviewed files or re-discover the repo between sessions. Load it at the start of any non-trivial task.
+description: Cómo persistir y reutilizar contexto para no re-leer archivos ya revisados ni re-descubrir el repo entre sesiones. Cárgala al inicio de cualquier tarea no trivial.
 ---
 
-# Context and memory (don't re-review what was already reviewed)
+# Contexto y memoria (no volver a revisar lo ya revisado)
 
-A session's context is expensive and is lost when it closes. This workshop combines
-OpenCode's native mechanisms with its own **persistent memory**.
+El contexto de una sesión es caro y se pierde al cerrarla. Este taller combina
+los mecanismos nativos de OpenCode con una **memoria persistente** propia.
 
-## 1. Native mechanisms (free, already configured)
+## 1. Mecanismos nativos (grátis, ya configurados)
 
-| Mechanism | What it does | How to leverage it |
+| Mecanismo | Qué hace | Cómo se aprovecha |
 | --- | --- | --- |
-| **Subagents with fresh context** | The heavy reading happens in a child; the parent only receives the summary | Send `explore`/`researcher` to read; don't read 40 files in the main thread |
-| **Compaction** | Automatically summarizes the old and keeps the end (`compaction.keep.tokens`) | Tuned to 24k in `opencode.jsonc` |
-| **Persistent sessions** | The conversation lives in the local database; it resumes | Continue the session instead of redoing it |
-| **Prompt cache + warming** | The provider reuses the stable prefix | Keep instructions stable; enable `warming` if you pause a lot |
-| **Skills** | Instructions loaded on demand | They don't inflate the prompt until needed |
-| **AGENTS.md / instructions** | Stable and cheap prefix | Project rules, not discoveries |
-| **References** | External directories with cache (refresh every 24h) | Other repos/docs without cloning again |
-| **Snapshots** | File + conversation undo | Revert experiments without dirtying git |
+| **Subagentes con contexto fresco** | El trabajo pesado de lectura ocurre en un hijo; el padre solo recibe el resumen | Manda a `explore`/`researcher` a leer; no leas 40 archivos en el hilo principal |
+| **Compactación** | Resume automáticamente lo viejo y conserva el final (`compaction.keep.tokens`) | Ajustada a 24k en `opencode.jsonc` |
+| **Sesiones persistentes** | La conversación vive en la base local; se retoma | Continúa la sesión en vez de rehacer |
+| **Caché de prompt + warming** | El proveedor reutiliza el prefijo estable | Mantén instrucciones estables; activa `warming` si pausas mucho |
+| **Skills** | Instrucciones cargadas bajo demanda | No inflan el prompt hasta que hacen falta |
+| **AGENTS.md / instructions** | Prefijo estable y barato | Reglas del proyecto, no descubrimientos |
+| **Referencias** | Directorios externos con caché (refresh cada 24h) | Otros repos/docs sin clonar de nuevo |
+| **Snapshots** | Undo de archivos + conversación | Revertir experimentos sin ensuciar git |
 
-### Golden rule of isolation
-> Read in the subagent, **summarize in the parent**. The orchestrator's thread must
-> contain conclusions, not file dumps.
+### Regla de oro de aislamiento
+> Lee en el subagente, **resume en el padre**. El hilo del orquestador debe
+> contener conclusiones, no volcados de archivos.
 
-## 2. Project persistent memory (`.orquestador/memory/`)
+## 2. Memoria persistente del proyecto (`.orquestador/memory/`)
 
-Versionable directory, readable by humans and agents:
+Directorio versionable, legible por humanos y por agentes:
 
 ```text
 .orquestador/memory/
-├── INDEX.md       # minimal hub: always read first
-├── map.md         # module and key-file map → purpose
-├── files.md       # file → git hash + one-line summary + date
-├── decisions.md   # decisions and why (short ADR)
-└── glossary.md    # domain terms
+├── INDEX.md       # hub mínimo: se lee primero, siempre
+├── map.md         # mapa de módulos y archivos clave → propósito
+├── files.md       # archivo → hash git + resumen de una línea + fecha
+├── decisions.md   # decisiones y por qué (ADR corto)
+└── glossary.md    # términos del dominio
 ```
 
-### Protocol (mandatory)
+### Protocolo (obligatorio)
 
-1. **Before exploring**: read `INDEX.md` (~1 screen). If the map covers what
-   you need, **don't scan again**.
-2. **Before reading a file**: look up its entry in `files.md`. Compare the
-   recorded hash with the current one:
+1. **Antes de explorar**: lee `INDEX.md` (~1 pantalla). Si el mapa cubre lo que
+   necesitas, **no vuelvas a escanear**.
+2. **Antes de leer un archivo**: busca su entrada en `files.md`. Compara el hash
+   registrado con el actual:
    ```sh
-   git hash-object <file>
+   git hash-object <archivo>
    ```
-   If it matches, **trust the summary** and don't reopen it. If it differs, the file
-   changed: read it and update the entry.
-3. **After exploring/implementing**: update `map.md`, `files.md` and
-   `decisions.md` with what you learned. A one-line summary per file is enough.
-4. Keep `files.md` sorted by path and **don't** store full content: only
-   path · hash · summary · date.
+   Si coincide, **confía en el resumen** y no lo reabras. Si difiere, el archivo
+   cambió: léelo y actualiza la entrada.
+3. **Después de explorar/implementar**: actualiza `map.md`, `files.md` y
+   `decisions.md` con lo aprendido. Un resumen de una línea por archivo basta.
+4. Mantén `files.md` ordenado por ruta y **no** guardes contenido completo: solo
+   ruta · hash · resumen · fecha.
 
-### `files.md` format
+### Formato de `files.md`
 
 ```md
-| File | Hash (git) | Summary | Reviewed |
+| Archivo | Hash (git) | Resumen | Revisado |
 | --- | --- | --- | --- |
-| src/api.ts | a1b2c3d | REST endpoints; validates with zod | 2026-10-16 |
+| src/api.ts | a1b2c3d | Endpoints REST; valida con zod | 2026-10-16 |
 ```
 
-## 3. MCP memory (graph shared across sessions)
+## 3. Memoria MCP (grafo compartido entre sesiones)
 
-For facts that must survive across projects and agents, use the
-**memory** server (knowledge graph, persistent JSONL). It is configured as
-local MCP `memory`:
+Para hechos que deben sobrevivir entre proyectos y agentes, usa el servidor
+**memory** (grafo de conocimiento, JSONL persistente). Está configurado como
+MCP local `memory`:
 
-- Store **atomic facts** and relations, not code (code goes in `files.md`).
-- Use it for: user preferences, global architecture decisions,
-  conventions, "how X is done here".
-- Tools: `create_entities`, `add_observations`, `create_relations`,
+- Guarda **hechos atómicos** y relaciones, no código (el código va en `files.md`).
+- Úsalo para: preferencias del usuario, decisiones de arquitectura globales,
+  convenciones, "cómo se hace X aquí".
+- Herramientas: `create_entities`, `add_observations`, `create_relations`,
   `search_nodes`, `read_graph`.
 
-Rule: **Will I need it in another project or session?** → MCP memory.
-**Is it about this repo and its code?** → `.orquestador/memory/`.
+Regla: **¿lo necesitaré en otro proyecto o sesión?** → MCP memory.
+**¿Es sobre este repo y su código?** → `.orquestador/memory/`.
 
-## 4. Error memory (global, no files in the project)
+## 4. Memoria de errores (global, sin archivos en el proyecto)
 
-The `error-memory` plugin (`.opencode/plugins/error-memory.ts`) listens for every
-tool failure and stores it **outside the repository**, in a global store:
+El plugin `error-memory` (`.opencode/plugins/error-memory.ts`) escucha cada fallo
+de herramienta y lo guarda **fuera del repositorio**, en un almacén global:
 
 ```text
 ~/.config/opencode/orquestador/
-├── rules.md      # curated rules · loaded as `instructions` (cache)
-├── auto.md       # digest of recurring errors · also in `instructions`
-└── errors.jsonl  # raw log (append-only, with the project of origin)
+├── rules.md      # reglas curadas · se cargan como `instructions` (caché)
+├── auto.md       # digest de errores recurrentes · también en `instructions`
+└── errors.jsonl  # registro crudo (append-only, con el proyecto de origen)
 ```
 
-**Key design points:**
+**Claves del diseño:**
 
-- **Nothing is written inside the project**, so you can't commit junk by
-  accident.
-- `rules.md` and `auto.md` are declared in `instructions`, meaning they go in the
-  **cached prompt prefix**: the model already has them, and **spends no calls or
-  reasoning "reading rules"**.
-- A shell failure with output `exit != 0` arrives as `status: "completed"` (not
-  as `status: "error"`); the plugin detects both cases.
-- Equivalent errors share a **signature** (normalized message), so the same kind
-  of failure is not duplicated: it is counted.
+- **Nada se escribe dentro del proyecto**, así que no puedes commitear basura por
+  accidente.
+- `rules.md` y `auto.md` están declarados en `instructions`, o sea que van en el
+  **prefijo cacheado del prompt**: el modelo ya los tiene, **no gasta llamadas ni
+  razonamiento en "leer reglas"**.
+- Un fallo de shell con salida `exit != 0` llega como `status: "completed"` (no
+  como `status: "error"`); el plugin detecta ambos casos.
+- Errores equivalentes comparten **firma** (mensaje normalizado), así que el
+  mismo tipo de fallo no se duplica: se cuenta.
 
-**Protocol:**
+**Protocolo:**
 
-1. **Don't read `rules.md`/`auto.md` "just in case"**: they are already in your
-   context. Act.
-2. **Before retrying** something that failed, review `auto.md` (you already have
-   it) and, if you need the detail, look up the signature in `errors.jsonl`. If it
-   already failed the same way, change your approach.
-3. **When you learn a lesson**, add it as a short rule to `rules.md` (or use
-   `/errores`, which promotes the recurring ones from `auto.md`/`errors.jsonl`).
+1. **No leas `rules.md`/`auto.md` "por si acaso"**: ya están en tu contexto. Actúa.
+2. **Antes de reintentar** algo que falló, revisa `auto.md` (ya lo tienes) y, si
+   necesitas el detalle, busca la firma en `errors.jsonl`. Si ya falló igual,
+   cambia de enfoque.
+3. **Al aprender una lección**, añádela como regla corta a `rules.md` (o usa
+   `/errores`, que promueve los recurrentes de `auto.md`/`errors.jsonl`).
 
-## 5. Resource optimization (spend less time and reasoning)
+## 5. Optimización de recursos (gastar menos tiempo y razonamiento)
 
-Ordered from cheapest to most expensive. Always use the cheapest that works.
+Orden de lo más barato a lo más caro. Usa siempre lo más barato que funcione.
 
-| Cost | Mechanism | When |
+| Coste | Mecanismo | Cuándo |
 | --- | --- | --- |
-| **0** | `rules.md`/`auto.md` via `instructions` (cached prefix) | Always: it is already in context |
-| **0** | `AGENTS.md` and skills | Stable rules; they get cached |
-| **Low** | One `execute` call that returns a **digest** | Summarize memory/multi-read in 1 step |
-| **Medium** | Subagent with fresh context | Heavy reading work; the parent receives only the summary |
-| **High** | Reading many files in the main thread | Avoid it |
+| **0** | `rules.md`/`auto.md` vía `instructions` (prefijo cacheado) | Siempre: ya está en contexto |
+| **0** | `AGENTS.md` y skills | Reglas estables; se cachean |
+| **Bajo** | Una llamada a `execute` que devuelve un **digest** | Resumen de memoria/multi-read en 1 paso |
+| **Medio** | Subagente con contexto fresco | Trabajo pesado de lectura; el padre recibe solo el resumen |
+| **Alto** | Leer muchos archivos en el hilo principal | Evítalo |
 
-Practical rules:
+Reglas prácticas:
 
-1. **Don't "review the rules"**: they are in the prompt. Reading them again
-   spends twice.
-2. **One intention, one call**: use `execute` to group independent
-   reads/searches and keep only what is relevant.
-3. **Don't reopen files with the same hash** (`files.md`).
-4. **Delegate bulk reading** to `explore`/`researcher` and ask for bounded
-   output.
-5. **Only go up a tier if needed** (`model-router` skill): over-reasoning on
-   something trivial is the most common waste.
-6. **Pre-warm (`warming`) only in long sessions with pauses.**
+1. **No "revisar reglas"**: están en el prompt. Leerlas otra vez es gastar por
+   duplicado.
+2. **Una intención, una llamada**: usa `execute` para agrupar lecturas/búsquedas
+   independientes y quedarte solo con lo relevante.
+3. **No reabras archivos con el mismo hash** (`files.md`).
+4. **Delega la lectura masiva** a `explore`/`researcher` y pide salidas acotadas.
+5. **Sube de tier solo si hace falta** (skill `model-router`): razonar de más en
+   algo trivial es el desperdicio más común.
+6. **Precargar (`warming`) solo en sesiones largas con pausas.**
 
-## 6. Context hygiene
+## 6. Higiene de contexto
 
-- One objective per session; open a new session for a new topic (avoid dragging
-  dead context).
-- Ask subagents for **bounded** replies (max N lines / only what was asked).
-- Discard what is obsolete: a deleted entry is better than a lie in memory.
-- If a subagent will read a lot and return little, that is the right design.
+- Un objetivo por sesión; abre sesión nueva para un tema nuevo (evita arrastrar
+  contexto muerto).
+- Pide a los subagentes respuestas **acotadas** (máx. N líneas / solo lo pedido).
+- Descarta lo obsoleto: mejor una entrada borrada que una mentira en la memoria.
+- Si un subagente va a leer mucho y devolver poco, ese es el diseño correcto.

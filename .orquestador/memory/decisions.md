@@ -11,3 +11,7 @@ Format: date · decision · reason · discarded alternatives.
   shared with the creator (`deepseek`/`glm`).
 - 2026-10-16 · Two-layer memory · `.orquestador/memory/` for the repo and MCP
   `memory` for cross-project facts.
+- 2026-10-16 · Language policy · documentation (README + project memory) in
+  English for sharing; agents, commands, skills, plugins, tools, rules and code
+  comments stay in the owner's language (Spanish here) · a fully English repo
+  was rejected.

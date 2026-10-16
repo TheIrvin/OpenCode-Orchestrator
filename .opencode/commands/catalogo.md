@@ -1,8 +1,11 @@
 ---
-description: Show the free-model catalog and which role each one covers
+description: Muestra el catálogo de modelos gratuitos y qué rol cubre cada uno
 agent: orchestrator
 model: opencode/beam-free#high
 subagent: false
 ---
 
-Concisely show the available free-model catalog and which subagent/role each one covers. Use the `model-router` skill as source. Do not run tasks; only answer with the table and a tier recommendation for the current task if the user mentioned one: $ARGUMENTS
+Muestra de forma concisa el catálogo de modelos gratuitos disponibles y qué
+subagente/rol cubre cada uno. Usa la skill `model-router` como fuente. No
+ejecutes tareas; solo responde con la tabla y una recomendación de tier para la
+tarea actual si el usuario la mencionó: $ARGUMENTS

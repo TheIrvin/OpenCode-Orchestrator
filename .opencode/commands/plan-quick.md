@@ -1,10 +1,11 @@
 ---
-description: Quick plan for small tasks (1-2 files)
+description: Plan rápido para tareas pequeñas (1-2 archivos)
 agent: planner-fast
 model: opencode/big-pickle
 subagent: false
 ---
 
-Plan (do not implement) this small task: $ARGUMENTS
+Planifica (no implementes) esta tarea pequeña: $ARGUMENTS
 
-Return numbered steps, affected files, and acceptance criteria. If it turns out to be bigger than it seemed, say so and recommend the higher tier.
+Devuelve pasos numerados, archivos afectados y criterio de aceptación. Si
+resulta ser más grande de lo que parecía, dilo y recomienda el tier superior.

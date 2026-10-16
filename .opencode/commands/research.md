@@ -1,10 +1,12 @@
 ---
-description: Broad research (repo, web, docs) with synthesis
+description: Investigación amplia (repo, web, docs) con síntesis
 agent: researcher
 model: opencode/longcat-2.5-preview-free
 subagent: false
 ---
 
-Research and synthesize: $ARGUMENTS
+Investiga y sintetiza: $ARGUMENTS
 
-Return key findings, evidence (paths/URLs), a file map if applicable, gaps, and a recommendation. Update `.orquestador/memory/map.md` and `files.md` with what you learned. For library documentation use Context7.
+Devuelve hallazgos clave, evidencia (rutas/URLs), mapa de archivos si aplica,
+lagunas y una recomendación. Actualiza `.orquestador/memory/map.md` y
+`files.md` con lo aprendido. Para documentación de librerías usa Context7.

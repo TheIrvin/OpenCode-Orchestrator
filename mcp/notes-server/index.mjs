@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 /**
- * notes-server — minimal local MCP (stdio transport, line-delimited JSON-RPC).
+ * notes-server — MCP local mínimo (transporte stdio, JSON-RPC por líneas).
  *
- * Exposes the project memory (Markdown files in NOTES_DIR) as
- * MCP tools, so any agent can query it without spending context
- * re-reading everything.
+ * Expone la memoria del proyecto (archivos Markdown en NOTES_DIR) como
+ * herramientas MCP, para que cualquier agente la consulte sin gastar contexto
+ * releyendo todo.
  *
- * Only uses Node built-in modules. No dependencies.
+ * Solo usa módulos nativos de Node. Sin dependencias.
  *
- * Environment variables:
- *   NOTES_DIR  Notes directory (default: ./.orquestador/memory)
+ * Variables de entorno:
+ *   NOTES_DIR  Directorio de notas (por defecto: ./.orquestador/memory)
  *
- * Tools:
- *   notes_list    → lists the memory files
- *   notes_search  → searches text in the notes (with a result limit)
- *   notes_read    → reads a memory file (with pagination)
- *   notes_append  → appends a line/section to a memory file
+ * Herramientas:
+ *   notes_list    → lista los archivos de memoria
+ *   notes_search  → busca texto en las notas (con límite de resultados)
+ *   notes_read    → lee un archivo de memoria (con paginación)
+ *   notes_append  → añade una línea/sección a un archivo de memoria
  */
 
 import { createInterface } from "node:readline";
@@ -26,15 +26,15 @@ const NOTES_DIR = path.resolve(process.env.NOTES_DIR || path.join(process.cwd(),
 const ALLOWED_EXT = new Set([".md", ".jsonl", ".txt"]);
 const MAX_RESULTS = 50;
 
-/** Resolves a relative path inside NOTES_DIR (prevents escaping the directory). */
+/** Resuelve una ruta relativa dentro de NOTES_DIR (evita salir del directorio). */
 function safeJoin(relative) {
   const target = path.resolve(NOTES_DIR, relative);
   const base = NOTES_DIR.endsWith(path.sep) ? NOTES_DIR : NOTES_DIR + path.sep;
   if (target !== NOTES_DIR && !target.startsWith(base)) {
-    throw new Error(`Path outside the memory directory: ${relative}`);
+    throw new Error(`Ruta fuera del directorio de memoria: ${relative}`);
   }
   if (!ALLOWED_EXT.has(path.extname(target).toLowerCase())) {
-    throw new Error(`Extension not allowed: ${path.extname(target)}`);
+    throw new Error(`Extensión no permitida: ${path.extname(target)}`);
   }
   return target;
 }
@@ -54,11 +54,11 @@ async function listNotes() {
 
 async function searchNotes(query) {
   const needle = String(query || "").toLowerCase();
-  if (!needle) throw new Error("`query` is required");
+  if (!needle) throw new Error("`query` es obligatorio");
   const { files } = await listNotes();
   const hits = [];
   for (const { file } of files) {
-    if (file === "graph.jsonl") continue; // the MCP graph has its own access
+    if (file === "graph.jsonl") continue; // el grafo MCP tiene su propio acceso
     const content = await fs.readFile(path.join(NOTES_DIR, file), "utf8");
     content.split(/\r?\n/).forEach((line, index) => {
       if (line.toLowerCase().includes(needle)) {
@@ -83,7 +83,7 @@ async function readNote(file, offset = 1, limit = 200) {
 async function appendNote(file, text) {
   const target = safeJoin(file);
   const block = String(text ?? "").trimEnd();
-  if (!block) throw new Error("`text` is required");
+  if (!block) throw new Error("`text` es obligatorio");
   await fs.mkdir(NOTES_DIR, { recursive: true });
   await fs.appendFile(target, `\n${block}\n`, "utf8");
   return { file, appended: block.length };
@@ -92,26 +92,26 @@ async function appendNote(file, text) {
 const TOOLS = [
   {
     name: "notes_list",
-    description: "Lists the project memory files and their size/date.",
+    description: "Lista los archivos de memoria del proyecto y su tamaño/fecha.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "notes_search",
-    description: "Searches for text in the memory notes and returns matches (file:line).",
+    description: "Busca un texto en las notas de memoria y devuelve coincidencias (archivo:línea).",
     inputSchema: {
       type: "object",
-      properties: { query: { type: "string", description: "Text to search for" } },
+      properties: { query: { type: "string", description: "Texto a buscar" } },
       required: ["query"],
       additionalProperties: false,
     },
   },
   {
     name: "notes_read",
-    description: "Reads a memory file with line-based pagination.",
+    description: "Lee un archivo de memoria con paginación por líneas.",
     inputSchema: {
       type: "object",
       properties: {
-        file: { type: "string", description: "File name inside the memory directory" },
+        file: { type: "string", description: "Nombre del archivo dentro del directorio de memoria" },
         offset: { type: "integer", minimum: 1 },
         limit: { type: "integer", minimum: 1, maximum: 500 },
       },
@@ -121,7 +121,7 @@ const TOOLS = [
   },
   {
     name: "notes_append",
-    description: "Appends a line or section to the end of a memory file.",
+    description: "Añade una línea o sección al final de un archivo de memoria.",
     inputSchema: {
       type: "object",
       properties: {
@@ -145,7 +145,7 @@ async function callTool(name, args = {}) {
     case "notes_append":
       return appendNote(args.file, args.text);
     default:
-      throw new Error(`Unknown tool: ${name}`);
+      throw new Error(`Herramienta desconocida: ${name}`);
   }
 }
 
@@ -168,7 +168,7 @@ async function handle(message) {
         break;
       case "notifications/initialized":
       case "notifications/cancelled":
-        return; // notifications: no response
+        return; // notificaciones: sin respuesta
       case "ping":
         result = {};
         break;
@@ -182,7 +182,7 @@ async function handle(message) {
       }
       default:
         if (!isRequest) return;
-        throw Object.assign(new Error(`Unsupported method: ${method}`), { code: -32601 });
+        throw Object.assign(new Error(`Método no soportado: ${method}`), { code: -32601 });
     }
     if (isRequest) send({ jsonrpc: "2.0", id, result });
   } catch (error) {
@@ -203,7 +203,7 @@ rl.on("line", (line) => {
   try {
     message = JSON.parse(trimmed);
   } catch {
-    return; // ignore lines that are not JSON
+    return; // ignora líneas que no son JSON
   }
   void handle(message);
 });

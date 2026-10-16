@@ -1,27 +1,27 @@
-# notes-server (sample self-built MCP)
+# notes-server (MCP propio de ejemplo)
 
-Local MCP server, dependency-free, that exposes the project memory
-(`.orquestador/memory/`) as tools for agents.
+Servidor MCP local, sin dependencias, que expone la memoria del proyecto
+(`.orquestador/memory/`) como herramientas para los agentes.
 
-## Tools
+## Herramientas
 
-| Tool | What for |
+| Herramienta | Para qué |
 | --- | --- |
-| `notes_list` | See which memory files exist |
-| `notes_search` | Search before re-reading ("did we already review X?") |
-| `notes_read` | Read a file with pagination |
-| `notes_append` | Log a finding/decision |
+| `notes_list` | Ver qué archivos de memoria existen |
+| `notes_search` | Buscar antes de releer ("¿ya revisamos X?") |
+| `notes_read` | Leer un archivo con paginación |
+| `notes_append` | Registrar un hallazgo/decisión |
 
-## Try it by hand
+## Probarlo a mano
 
 ```sh
 # Windows
 set NOTES_DIR=.orquestador\memory && echo {"jsonrpc":"2.0","id":1,"method":"tools/list"} | node mcp/notes-server/index.mjs
 ```
 
-You should see one JSON line with the tool list.
+Deberías ver una línea JSON con la lista de herramientas.
 
-## Connect it to OpenCode
+## Conectarlo a OpenCode
 
 ```jsonc
 {
@@ -38,13 +38,13 @@ You should see one JSON line with the tool list.
 }
 ```
 
-Remember: with Code Mode (default) the tools show up as
-`tools.notes.notes_search(...)` inside `execute`.
+Recuerda: con Code Mode (por defecto) las herramientas aparecen como
+`tools.notes.notes_search(...)` dentro de `execute`.
 
-## Create your own
+## Crear el tuyo
 
-1. Copy this folder and change the tools in `TOOLS` and the `switch` of
+1. Copia esta carpeta y cambia las herramientas en `TOOLS` y el `switch` de
    `callTool`.
-2. Keep outputs compact and with limits.
-3. Don't return secrets; don't run destructive actions without confirmation.
-4. If the server grows, migrate to the official SDK `@modelcontextprotocol/sdk`.
+2. Mantén las salidas compactas y con límites.
+3. No devuelvas secretos; no ejecutes acciones destructivas sin confirmación.
+4. Si el servidor crece, migra al SDK oficial `@modelcontextprotocol/sdk`.

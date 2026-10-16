@@ -1,10 +1,12 @@
 ---
-description: Implement a task with the main creator
+description: Implementa una tarea con el creador principal
 agent: creator
 model: opencode/deepseek-v4.1-flash-free#high
 subagent: false
 ---
 
-Implement the following with the minimal change that meets the acceptance criteria: $ARGUMENTS
+Implementa lo siguiente con el mínimo cambio que cumpla el criterio de
+aceptación: $ARGUMENTS
 
-Read the memory before opening files, run verification yourself, and update `.orquestador/memory/files.md` when done.
+Lee la memoria antes de abrir archivos, ejecuta la verificación tú mismo y
+actualiza `.orquestador/memory/files.md` al terminar.
