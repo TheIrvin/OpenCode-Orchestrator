@@ -1,9 +1,9 @@
-# Archivos revisados
+# Reviewed files
 
-Antes de abrir un archivo, compara su hash actual (`git hash-object <archivo>`)
-con el de aquí. Si coincide, **no lo releas**: usa el resumen.
+Before opening a file, compare its current hash (`git hash-object <file>`)
+with the one here. If it matches, **don't reopen it**: use the summary.
 
-| Archivo | Hash (git) | Resumen | Revisado |
+| File | Hash (git) | Summary | Reviewed |
 | --- | --- | --- | --- |
-| opencode.jsonc | — | Config raíz: modelo, permisos, MCP context7+memory | 2026-10-16 |
-| AGENTS.md | — | Reglas del proyecto para los agentes | 2026-10-16 |
+| opencode.jsonc | — | Root config: model, permissions, MCP context7+memory | 2026-10-16 |
+| AGENTS.md | — | Project rules for the agents | 2026-10-16 |

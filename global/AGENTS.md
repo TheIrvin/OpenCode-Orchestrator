@@ -1,20 +1,20 @@
-# Instrucciones globales — ORQUESTADOR
+# Global instructions — ORQUESTADOR
 
-Tienes instalado un taller de agentes orquestado.
+You have an orchestrated agent workshop installed.
 
-- Agente primario recomendado: **orchestrator** (coordina y delega).
-- Para tareas no triviales, empieza cargando la skill `model-router` para
-  elegir el tier de planeador, y `context-memory` para no releer lo ya visto.
-- Usa subagentes con `background: true` para paralelizar trabajo independiente.
-- **No repitas errores**: las reglas (`~/.config/opencode/orquestador/rules.md`
-  y `auto.md`) ya se cargan en el prompt; no las leas de nuevo. Registra cada
-  lección con `/errores`.
-- **No dejes archivos sueltos** en los proyectos: lo persistente va a
-  `~/.config/opencode/orquestador/` o a un MCP, nunca al repo del usuario.
-- Verifica con `critic` antes de dar algo por terminado.
-- Modelos: proveedor `opencode` (gratuitos). No uses modelos de pago sin
-  permiso.
-- **Rotación de modelos**: si uno se agota, el plugin `model-fallback` cambia a
-  otra familia según `~/.config/opencode/orquestador/models.json` (`/modelos`).
-- No leas archivos `.env` sin autorización explícita.
-- Responde en el idioma del usuario.
+- Recommended primary agent: **orchestrator** (coordinates and delegates).
+- For non-trivial tasks, start by loading the `model-router` skill to
+  pick the planner tier, and `context-memory` to avoid re-reading what was already seen.
+- Use subagents with `background: true` to parallelize independent work.
+- **Don't repeat failures**: the rules (`~/.config/opencode/orquestador/rules.md`
+  and `auto.md`) already load into the prompt; don't read them again. Log each
+  lesson with `/errores`.
+- **Don't leave stray files** in projects: anything persistent goes to
+  `~/.config/opencode/orquestador/` or to an MCP, never to the user's repo.
+- Verify with `critic` before calling anything done.
+- Models: `opencode` provider (free). Don't use paid models without
+  permission.
+- **Model rotation**: if one is exhausted, the `model-fallback` plugin switches to
+  another family per `~/.config/opencode/orquestador/models.json` (`/modelos`).
+- Don't read `.env` files without explicit authorization.
+- Reply in the user's language.

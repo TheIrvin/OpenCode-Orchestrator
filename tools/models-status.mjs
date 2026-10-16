@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * models-status — estado de modelos en UNA sola llamada.
+ * models-status — model status in ONE single call.
  *
- * Lee el manifiesto global y el cooldown, y muestra:
- *   - familias de modelos (para no repetir una familia agotada)
- *   - modelos en cooldown (no disponibles ahora)
- *   - el modelo "sano" que elegiría el fallback para cada rol
+ * Reads the global manifest and the cooldown, and shows:
+ *   - model families (so as not to repeat an exhausted family)
+ *   - models in cooldown (unavailable right now)
+ *   - the "healthy" model the fallback would pick for each role
  *
  *   node tools/models-status.mjs
  *
- * Sin dependencias.
+ * No dependencies.
  */
 
 import { readFile } from "node:fs/promises"
@@ -49,25 +49,25 @@ const parseSpec = (spec) => {
 }
 
 const out = []
-out.push(`proveedor: ${manifest.provider ?? "opencode"}`)
+out.push(`provider: ${manifest.provider ?? "opencode"}`)
 out.push("")
-out.push("FAMILIAS")
+out.push("FAMILIES")
 for (const [family, ids] of Object.entries(manifest.families ?? {})) {
   out.push(`  ${family}: ${ids.join(", ")}`)
 }
 out.push("")
 
 const coolingIds = Object.keys(cooldown).filter(cooling)
-out.push(`EN COOLDOWN (${coolingIds.length})`)
+out.push(`IN COOLDOWN (${coolingIds.length})`)
 for (const id of coolingIds) out.push(`  ${id} (${Math.ceil((cooldown[id].until - now) / 1000)}s)`)
-if (!coolingIds.length) out.push("  (ninguno)")
+if (!coolingIds.length) out.push("  (none)")
 out.push("")
 
-out.push("RESPALDO SUGERIDO POR ROL")
+out.push("SUGGESTED FALLBACK PER ROLE")
 for (const [role, chain] of Object.entries(manifest.roles ?? {})) {
   const specs = chain.map(parseSpec)
   const healthy = specs.find((s) => !cooling(s.id)) ?? specs[0]
-  const suffix = healthy ? `${healthy.id}${healthy.variant ? `#${healthy.variant}` : ""}` : "(sin cadena)"
+  const suffix = healthy ? `${healthy.id}${healthy.variant ? `#${healthy.variant}` : ""}` : "(no chain)"
   out.push(`  ${role}: ${suffix}   [${familyOf(healthy?.id ?? "")}]`)
 }
 

@@ -1,24 +1,24 @@
-# Mapa del proyecto
+# Project map
 
-## Módulos
+## Modules
 
-| Módulo | Ruta | Propósito |
+| Module | Path | Purpose |
 | --- | --- | --- |
-| Configuración | `opencode.jsonc` | Modelo por defecto, permisos, MCP, compactación |
-| Agentes | `.opencode/agents/` | Orquestador, planeadores, creadores, crítico, etc. |
-| Comandos | `.opencode/commands/` | Atajos `/orq`, `/plan-*`, `/build`, `/review`, … |
-| Skills | `.opencode/skills/` | Router de modelos, memoria, paralelismo, MCP |
-| Memoria | `.orquestador/memory/` | Contexto persistente del proyecto |
-| Errores (global) | `~/.config/opencode/orquestador/` | Reglas, digest y registro; fuera del repo |
-| Plugin errores | `.opencode/plugins/error-memory.ts` | Captura automática de fallos (escribe en global) |
-| Catálogo modelos | `orquestador/models.json` | Familias + cadenas de respaldo por rol |
-| Plugin fallback | `.opencode/plugins/model-fallback.ts` | Rota de modelo ante fallo de proveedor |
-| Utilidades | `tools/` | `memory-digest.mjs`, `models-status.mjs` (una llamada) |
+| Configuration | `opencode.jsonc` | Default model, permissions, MCP, compaction |
+| Agents | `.opencode/agents/` | Orchestrator, planners, creators, critic, etc. |
+| Commands | `.opencode/commands/` | Shortcuts `/orq`, `/plan-*`, `/build`, `/review`, … |
+| Skills | `.opencode/skills/` | Model router, memory, parallelism, MCP |
+| Memory | `.orquestador/memory/` | Persistent project context |
+| Errors (global) | `~/.config/opencode/orquestador/` | Rules, digest, and log; outside the repo |
+| Error plugin | `.opencode/plugins/error-memory.ts` | Automatic failure capture (writes to the global store) |
+| Model catalog | `orquestador/models.json` | Families + per-role fallback chains |
+| Fallback plugin | `.opencode/plugins/model-fallback.ts` | Rotates model on provider failure |
+| Utilities | `tools/` | `memory-digest.mjs`, `models-status.mjs` (one call each) |
 
-## Entradas principales
+## Main entry points
 
-- `AGENTS.md` — reglas del proyecto.
-- `README.md` — arquitectura y uso.
-- `install.ps1` — instala el sistema en `~/.config/opencode`.
+- `AGENTS.md` — project rules.
+- `README.md` — architecture and usage.
+- `install.ps1` — installs the system into `~/.config/opencode`.
 
-> Rellena esto con la estructura real del proyecto en el que trabajes.
+> Fill this in with the real structure of the project you work on.

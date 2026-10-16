@@ -1,27 +1,27 @@
-# Reglas de trabajo (no repetir errores)
+# Working rules (don't repeat failures)
 
-> Este archivo se carga como `instructions` en el **prefijo cacheado** del
-> prompt, así que **no hace falta "leerlo" con herramientas**: ya está en
-> contexto. Añade aquí solo reglas cortas y accionables. Los errores recurrentes
-> se resumen automáticamente en `auto.md`.
+> This file is loaded as `instructions` into the **cached prefix** of the
+> prompt, so there is **no need to "read" it** with tools: it is already in
+> context. Only add short, actionable rules here. Recurring errors
+> are summarized automatically in `auto.md`.
 
-## Entorno
+## Environment
 
-- **Windows/PowerShell**: no uses `node -e` con comillas anidadas; escribe un
-  `.mjs` y ejecútalo. Rutas con espacios, entre comillas dobles.
-- **`npx`**: en Windows usa `cmd /c npx ...` (`npx.ps1` está bloqueado).
-- **JSON/JSONC**: escribe **sin BOM** (un BOM rompe `JSON.parse`). Al limpiar
-  comentarios, respeta las cadenas (`//` dentro de una URL no es comentario).
+- **Windows/PowerShell**: don't use `node -e` with nested quotes; write a
+  `.mjs` file and run it. Paths with spaces go in double quotes.
+- **`npx`**: on Windows use `cmd /c npx ...` (`npx.ps1` is blocked).
+- **JSON/JSONC**: write **without BOM** (a BOM breaks `JSON.parse`). When stripping
+  comments, respect strings (`//` inside a URL is not a comment).
 
-## Edición
+## Editing
 
-- Usa `edit` con `oldString` único y suficiente contexto; si falla, amplía el
-  contexto o usa `replaceAll`. No reescribas el archivo entero a ciegas.
-- Un cambio = el mínimo que cumple el criterio de aceptación. Sin dependencias
-  nuevas sin justificar.
+- Use `edit` with a unique `oldString` plus enough context; if it fails, widen the
+  context or use `replaceAll`. Don't rewrite the whole file blindly.
+- One change = the minimum that meets the acceptance criteria. No new dependencies
+  without justification.
 
-## Proceso
+## Process
 
-- Antes de leer un archivo: si está en la memoria con el mismo hash, no lo releas.
-- Antes de ejecutar o reintentar algo que falló: revisa `auto.md`/la memoria.
-- Cierra con: cambios, verificación real (comando + resultado) y pendientes.
+- Before reading a file: if it is in memory with the same hash, don't re-read it.
+- Before running or retrying something that failed: check `auto.md`/memory.
+- Close out with: changes, real verification (command + result), and pending items.

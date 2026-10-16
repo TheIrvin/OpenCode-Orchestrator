@@ -1,28 +1,26 @@
 ---
-description: Crea la memoria persistente del proyecto en .orquestador/memory/
+description: Create the project's persistent memory in .orquestador/memory/
 agent: orchestrator
 model: opencode/beam-free#high
 subagent: false
 ---
 
-Inicializa la memoria persistente del proyecto. Crea, si no existen, estos
-archivos con exactamente esta estructura inicial (rellena lo que ya sepas del
-repo; no inventes):
+Initialize the project's persistent memory. Create, if missing, these files with exactly this initial structure (fill in what you already know about the repo; do not invent):
 
 `.orquestador/memory/INDEX.md`
 ```md
-# Memoria del proyecto — índice
+# Project memory — index
 
-- Mapa de módulos: `map.md`
-- Archivos revisados: `files.md`
-- Decisiones: `decisions.md`
-- Glosario: `glossary.md`
-- Última actualización: <fecha>
+- Module map: `map.md`
+- Reviewed files: `files.md`
+- Decisions: `decisions.md`
+- Glossary: `glossary.md`
+- Last updated: <date>
 ```
 
-`.orquestador/memory/map.md` → sección "Módulos" y "Entradas principales".
-`.orquestador/memory/files.md` → tabla `| Archivo | Hash (git) | Resumen | Revisado |`.
-`.orquestador/memory/decisions.md` → decisiones con fecha y motivo.
-`.orquestador/memory/glossary.md` → términos del dominio.
+`.orquestador/memory/map.md` → "Modules" and "Main entry points" sections.
+`.orquestador/memory/files.md` → table `| File | Hash (git) | Summary | Reviewed |`.
+`.orquestador/memory/decisions.md` → decisions with date and reason.
+`.orquestador/memory/glossary.md` → domain terms.
 
-Si el directorio ya existe, no lo sobrescribas: informa de su estado.
+If the directory already exists, do not overwrite it: report its status.

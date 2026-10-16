@@ -1,357 +1,357 @@
 # ORQUESTADOR
 
-Taller de agentes **multi-modelo y en paralelo** para [OpenCode V2](https://opencode.ai/v2/docs/),
-construido **solo con modelos gratuitos**. Un agente **orquestador** clasifica
-el problema, elige el **planeador** adecuado según su tamaño, reparte el trabajo
-entre subagentes en paralelo, verifica con un crítico independiente y guarda el
-contexto en una **memoria persistente** para no volver a revisar lo ya visto.
+A **multi-model, parallel** agent workshop for [OpenCode V2](https://opencode.ai/v2/docs/),
+built **only with free models**. An **orchestrator** agent classifies the problem,
+picks the right **planner** based on its size, splits the work across subagents in
+parallel, verifies with an independent critic, and stores context in a
+**persistent memory** so it never re-reviews what it already saw.
 
 ---
 
-## 1. Modelos gratuitos disponibles (verificado)
+## 1. Free models available (verified)
 
-Todos del proveedor `opencode`, coste **0**. `#variant` = esfuerzo de
-razonamiento.
+All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
 
-| Modelo | Contexto | Salida | Visión | Variantes | Rol en el taller |
+| Model | Context | Output | Vision | Variants | Role in the workshop |
 | --- | ---: | ---: | --- | --- | --- |
-| **Beam** | 1.05M | 131k | — | low…**max** | Orquestador + general |
-| **Space Bunny** | 1.05M | 524k | img, vídeo | low…**max** | Planeador medio/profundo |
-| **Nemotron 3 Ultra** | 1M | 128k | — | — | Planeador de horizonte largo |
-| **LongCat 2.5 Preview** | 1M | 131k | img | — | Investigador |
-| **Muse Spark 1.3** | 1.05M | 131k | img, vídeo, PDF, audio | minimal…**xhigh** | Crítico + docs |
-| **Nemotron 3.5 Super VL** | 1.05M | 131k | img | none…**xhigh** | Analista visual |
-| **DeepSeek V4.1 Flash** | 200k | 32k | img | low, high, **max** | Creador principal |
-| **GLM-5.3-Flash** | 200k | 32k | img, vídeo, PDF | low, high, **max** | Creador alterno |
-| **Nemotron 3.5 Lightning** | 262k | 262k | — | — | Búsqueda/exploración rápida |
-| **MiMo-V2.6-Flash** | 200k | 32k | img, audio, vídeo | — | Multimodal (audio/vídeo) |
-| **Big Pickle** | 200k | 32k | — | — | Planeador rápido / tareas pequeñas |
+| **Beam** | 1.05M | 131k | — | low…**max** | Orchestrator + general |
+| **Space Bunny** | 1.05M | 524k | img, video | low…**max** | Medium/deep planner |
+| **Nemotron 3 Ultra** | 1M | 128k | — | — | Long-horizon planner |
+| **LongCat 2.5 Preview** | 1M | 131k | img | — | Researcher |
+| **Muse Spark 1.3** | 1.05M | 131k | img, video, PDF, audio | minimal…**xhigh** | Critic + docs |
+| **Nemotron 3.5 Super VL** | 1.05M | 131k | img | none…**xhigh** | Visual analyst |
+| **DeepSeek V4.1 Flash** | 200k | 32k | img | low, high, **max** | Main creator |
+| **GLM-5.3-Flash** | 200k | 32k | img, video, PDF | low, high, **max** | Alternate creator |
+| **Nemotron 3.5 Lightning** | 262k | 262k | — | — | Fast search/exploration |
+| **MiMo-V2.6-Flash** | 200k | 32k | img, audio, video | — | Multimodal (audio/video) |
+| **Big Pickle** | 200k | 32k | — | — | Fast planner / small tasks |
 
-> Detalle completo y matriz de decisión en
+> Full detail and decision matrix in
 > `.opencode/skills/model-router/SKILL.md`.
 
 ---
 
-## 2. Arquitectura
+## 2. Architecture
 
 ```text
                         ┌───────────────────────────────┐
                         │        ORCHESTRATOR           │  beam-free #xhigh
-                        │  clasifica · reparte · cierra │
+                        │  classifies · splits · closes │
                         └───────────────┬───────────────┘
           ┌───────────────┬─────────────┼─────────────┬───────────────┐
           ▼               ▼             ▼             ▼               ▼
    planner-*        explore      researcher      creator/        vision
-   (tiers)          (mapa repo)  (web/docs)      creator-alt     (multimodal)
+   (tiers)          (repo map)   (web/docs)      creator-alt     (multimodal)
           │                                           │
-          └──────────────► critic (verifica) ◄─────────┘
+          └──────────────► critic (verifies) ◄─────────┘
                                    │
                           .orquestador/memory/  +  MCP memory
 ```
 
-### Agentes
+### Agents
 
-| Agente | Modo | Modelo | Función |
+| Agent | Mode | Model | Function |
 | --- | --- | --- | --- |
-| `orchestrator` | primary | beam-free#xhigh | Dirección del flujo |
-| `planner-fast` | subagent | big-pickle | Plan de tareas pequeñas |
-| `planner` | all | space-bunny-free#high | Plan de módulo |
-| `planner-deep` | subagent | space-bunny-free#max | Plan complejo con tradeoffs |
-| `planner-long` | subagent | nemotron-3-ultra-free | Plan extenso por fases |
-| `creator` | subagent | deepseek-v4.1-flash-free#high | Implementación |
-| `creator-alt` | subagent | glm-5.3-flash-free#high | Implementación alterna/paralela |
-| `critic` | subagent | muse-spark-1.3-contributor-free#high | Verificación independiente |
-| `researcher` | subagent | longcat-2.5-preview-free | Investigación + síntesis |
-| `vision` | subagent | nemotron-3.5-super-vl-free#high | Imágenes/PDF/audio |
-| `docs` | subagent | muse-spark-1.3-contributor-free#medium | Documentación |
-| `explore` (integrado) | subagent | nemotron-3.5-lightning-free | Búsqueda veloz |
+| `orchestrator` | primary | beam-free#xhigh | Flow direction |
+| `planner-fast` | subagent | big-pickle | Plan for small tasks |
+| `planner` | all | space-bunny-free#high | Module plan |
+| `planner-deep` | subagent | space-bunny-free#max | Complex plan with tradeoffs |
+| `planner-long` | subagent | nemotron-3-ultra-free | Extensive phased plan |
+| `creator` | subagent | deepseek-v4.1-flash-free#high | Implementation |
+| `creator-alt` | subagent | glm-5.3-flash-free#high | Alternate/parallel implementation |
+| `critic` | subagent | muse-spark-1.3-contributor-free#high | Independent verification |
+| `researcher` | subagent | longcat-2.5-preview-free | Research + synthesis |
+| `vision` | subagent | nemotron-3.5-super-vl-free#high | Images/PDF/audio |
+| `docs` | subagent | muse-spark-1.3-contributor-free#medium | Documentation |
+| `explore` (built-in) | subagent | nemotron-3.5-lightning-free | Fast search |
 
 ---
 
-## 3. Cambio automático de modelo y razonamiento
+## 3. Automatic model and reasoning switching
 
-El «cambio automático» es el **tier del planeador**: el orquestador clasifica el
-tamaño (S/M/L/XL) y lanza el hijo cuyo modelo ya está calibrado para ese tamaño.
+The "automatic switch" is the **planner tier**: the orchestrator classifies the
+size (S/M/L/XL) and launches the child whose model is already calibrated for that
+size.
 
-| Señal | Tier | Modelo |
+| Signal | Tier | Model |
 | --- | --- | --- |
-| 1–2 archivos, sin ambigüedad | `planner-fast` | big-pickle |
-| Un módulo / refactor acotado | `planner` | space-bunny#high |
-| Muchas restricciones, tradeoffs, riesgo | `planner-deep` | space-bunny#max |
-| Migración, arquitectura, muchos archivos | `planner-long` | nemotron-3-ultra |
+| 1–2 files, no ambiguity | `planner-fast` | big-pickle |
+| One module / scoped refactor | `planner` | space-bunny#high |
+| Many constraints, tradeoffs, risk | `planner-deep` | space-bunny#max |
+| Migration, architecture, many files | `planner-long` | nemotron-3-ultra |
 
-Además, todo trabajo largo **sube de tier** por estas señales: >3 archivos,
-decisiones de diseño, riesgo de regresión, requisitos ambiguos o >1 pasada.
+Also, any long work **goes up a tier** on these signals: >3 files, design
+decisions, regression risk, ambiguous requirements, or >1 pass.
 
-Para fijar variante en la **sesión primaria** (el `model` raíz no conserva
-variante) usa `/models` o los comandos con `model:` (`/orq`, `/plan-deep`, …).
+To pin a variant in the **primary session** (the root `model` does not keep the
+variant) use `/models` or the commands with `model:` (`/orq`, `/plan-deep`, …).
 
-### 3.1 Rotación y respaldo de modelos (si uno se agota)
+### 3.1 Model rotation and fallback (if one is exhausted)
 
-Los modelos gratuitos se agotan **por familia** (p. ej. los NVIDIA pueden caer
-juntos). OpenCode **no** tiene fallback nativo, así que el taller lo implementa:
+Free models get exhausted **by family** (e.g. the NVIDIA ones can go down
+together). OpenCode has **no** native fallback, so the workshop implements it:
 
-- **Manifiesto** `orquestador/models.json`: familias de modelos + **cadena
-  ordenada por rol**. Al instalar se copia a
+- **Manifest** `orquestador/models.json`: model families + an **ordered chain per
+  role**. On install it is copied to
   `~/.config/opencode/orquestador/models.json`.
-- **Plugin** `model-fallback`: en el hook `retry` detecta fallos de proveedor
-  (`429`, `404`, `5xx`, "unavailable"/"quota"...), marca el modelo en *cooldown*
-  y cambia la sesión al **siguiente modelo de otra familia** con
+- **Plugin** `model-fallback`: on the `retry` hook it detects provider failures
+  (`429`, `404`, `5xx`, "unavailable"/"quota"...), marks the model in *cooldown*,
+  and switches the session to the **next model from another family** with
   `session.switchModel`.
-- **`/modelos`**: muestra familias, cooldowns y el modelo sano por rol.
+- **`/modelos`**: shows families, cooldowns, and the healthy model per role.
 
-Ejemplo de cadena: `creator` → `deepseek#high` → `glm#high` → `space-bunny#high`
-→ `mimo` → `longcat` → `nemotron-ultra`. Si DeepSeek se agota, salta a GLM
-(otra familia), nunca a otro DeepSeek.
+Example chain: `creator` → `deepseek#high` → `glm#high` → `space-bunny#high`
+→ `mimo` → `longcat` → `nemotron-ultra`. If DeepSeek is exhausted, it jumps to
+GLM (another family), never to another DeepSeek.
 
-> La rotación es **solo ante fallo**: rotar en cada llamada rompería la caché de
-> prompt y la coherencia. Las cadenas completas están en la skill `model-router`.
-
----
-
-## 4. Paralelismo
-
-- **Subagentes en background**: `subagent` con `background: true`; el padre
-  sigue trabajando y recibe el resultado al terminar.
-- **Code Mode** (`execute`): varias herramientas independientes a la vez.
-- **Worktrees**: `worktree_create` + `session_move` para que dos creadores
-  trabajen sin pisarse (destino configurado: `worktree.directory`).
-- **Regla**: un dueño por archivo; paraleliza lo independiente, serializa lo que
-  comparte estado. Detalle en `.opencode/skills/parallel-dispatch/SKILL.md`.
+> Rotation happens **only on failure**: rotating on every call would break the
+> prompt cache and coherence. The full chains are in the `model-router` skill.
 
 ---
 
-## 5. Contexto y memoria (optimización)
+## 4. Parallelism
 
-El problema: el contexto es caro y se pierde al cerrar la sesión; releyendo
-archivos se pierde tiempo. Solución en **capas**:
+- **Background subagents**: `subagent` with `background: true`; the parent keeps
+  working and receives the result when it finishes.
+- **Code Mode** (`execute`): several independent tools at once.
+- **Worktrees**: `worktree_create` + `session_move` so two creators work without
+  collisions (destination configured: `worktree.directory`).
+- **Rule**: one owner per file; parallelize what is independent, serialize what
+  shares state. Detail in `.opencode/skills/parallel-dispatch/SKILL.md`.
 
-### 5.1 Mecanismos nativos de OpenCode
-| Mecanismo | Uso aquí |
+---
+
+## 5. Context and memory (optimization)
+
+The problem: context is expensive and is lost when the session closes; re-reading
+files wastes time. Solution in **layers**:
+
+### 5.1 OpenCode native mechanisms
+| Mechanism | Use here |
 | --- | --- |
-| Subagentes con contexto fresco | El trabajo pesado de lectura ocurre en el hijo; el padre recibe solo el resumen |
-| Compactación | `compaction.keep.tokens: 24000` (conserva más detalle reciente) |
-| Sesiones persistentes | Retomar en vez de rehacer |
-| Caché de prompt + `warming` | Prefijo estable; activa `warming` si pausas mucho |
-| Skills bajo demanda | No inflan el prompt hasta que se usan |
-| `AGENTS.md` / instructions | Prefijo estable y barato |
-| Referencias | Directorios externos con caché (refresh 24h) |
-| Snapshots | Undo de archivos + conversación (`/undo`) |
+| Subagents with fresh context | The heavy reading happens in the child; the parent only receives the summary |
+| Compaction | `compaction.keep.tokens: 24000` (keeps more recent detail) |
+| Persistent sessions | Resume instead of redoing |
+| Prompt cache + `warming` | Stable prefix; enable `warming` if you pause a lot |
+| Skills on demand | They don't inflate the prompt until used |
+| `AGENTS.md` / instructions | Stable and cheap prefix |
+| References | External directories with cache (24h refresh) |
+| Snapshots | File + conversation undo (`/undo`) |
 
-### 5.2 Memoria persistente del proyecto (`.orquestador/memory/`)
-| Archivo | Contenido |
+### 5.2 Project persistent memory (`.orquestador/memory/`)
+| File | Content |
 | --- | --- |
-| `INDEX.md` | Hub mínimo (se lee primero) |
-| `map.md` | Módulos → propósito |
-| `files.md` | `archivo · hash git · resumen · fecha` |
-| `decisions.md` | Decisiones y por qué |
-| `glossary.md` | Términos del dominio |
+| `INDEX.md` | Minimal hub (read first) |
+| `map.md` | Modules → purpose |
+| `files.md` | `file · git hash · summary · date` |
+| `decisions.md` | Decisions and why |
+| `glossary.md` | Domain terms |
 
-**Regla anti-relectura**: antes de abrir un archivo, comparar su
-`git hash-object` con `files.md`. Si coincide, se confía en el resumen.
+**Anti-re-reading rule**: before opening a file, compare its `git hash-object`
+with `files.md`. If it matches, trust the summary.
 
-### 5.3 Memoria MCP (cross-proyecto)
-Servidor `memory` (grafo de conocimiento, JSONL) para hechos que sirven en
-varios repos/proyectos: preferencias, convenciones, arquitectura global.
+### 5.3 MCP memory (cross-project)
+`memory` server (knowledge graph, JSONL) for facts that are useful across several
+repos/projects: preferences, conventions, global architecture.
 
-> Decisión: **¿lo necesito en otro proyecto?** → MCP `memory`.
-> **¿Es sobre este repo?** → `.orquestador/memory/`.
-> Detalle en `.opencode/skills/context-memory/SKILL.md`.
+> Decision: **do I need it in another project?** → MCP `memory`.
+> **is it about this repo?** → `.orquestador/memory/`.
+> Detail in `.opencode/skills/context-memory/SKILL.md`.
 
-### 5.4 Memoria de errores (global, sin archivos en el proyecto)
+### 5.4 Error memory (global, no files in the project)
 
-Un plugin (`error-memory`) escucha el final de cada herramienta y, **si falló**,
-lo guarda **fuera del repositorio**, en un almacén global:
+A plugin (`error-memory`) listens for the end of every tool and, **if it failed**,
+stores it **outside the repository**, in a global store:
 
 ```text
 ~/.config/opencode/orquestador/
-├── rules.md      # reglas curadas · cargadas como `instructions` (prompt cacheado)
-├── auto.md       # digest de errores recurrentes · también en `instructions`
-└── errors.jsonl  # registro crudo (append-only, con el proyecto de origen)
+├── rules.md      # curated rules · loaded as `instructions` (cached prompt)
+├── auto.md       # digest of recurring errors · also in `instructions`
+└── errors.jsonl  # raw log (append-only, with the project of origin)
 ```
 
-Detecta las dos formas de fallo: `status: "error"` y un comando de shell con
-`exit != 0` (que llega como `status: "completed"`). Errores equivalentes
-comparten **firma** (mensaje normalizado) y se cuentan, en vez de duplicarse.
+It detects both forms of failure: `status: "error"` and a shell command with
+`exit != 0` (which arrives as `status: "completed"`). Equivalent errors share a
+**signature** (normalized message) and are counted instead of duplicated.
 
-**Nada se escribe dentro del proyecto**, así que no puedes commitear archivos
-sueltos por accidente. Un error nuevo se convierte en regla con `/errores`.
+**Nothing is written inside the project**, so you can't commit stray files by
+accident. A new error becomes a rule with `/errores`.
 
-### 5.5 Optimización de recursos (menos tiempo y razonamiento)
+### 5.5 Resource optimization (less time and reasoning)
 
-De lo más barato a lo más caro; usa siempre lo más barato que funcione:
+From cheapest to most expensive; always use the cheapest that works:
 
-| Coste | Mecanismo | Uso |
+| Cost | Mechanism | Use |
 | --- | --- | --- |
-| **0** | `rules.md`/`auto.md` vía `instructions` | Ya están en el prompt (cacheadas): **no se "leen"** |
-| **0** | `AGENTS.md` y descripciones de skills | Reglas estables; prefijo cacheado |
-| **Bajo** | Una llamada a `execute` que devuelve un digest | Agrupa lecturas/búsquedas en 1 paso |
-| **Medio** | Subagente con contexto fresco | Lectura pesada; el padre recibe solo el resumen |
-| **Alto** | Leer muchos archivos en el hilo principal | Evítalo |
+| **0** | `rules.md`/`auto.md` via `instructions` | Already in the prompt (cached): they are **not "read"** |
+| **0** | `AGENTS.md` and skill descriptions | Stable rules; cached prefix |
+| **Low** | One `execute` call that returns a digest | Groups reads/searches in 1 step |
+| **Medium** | Subagent with fresh context | Heavy reading; the parent receives only the summary |
+| **High** | Reading many files in the main thread | Avoid it |
 
-Claves aplicadas en este taller:
+Keys applied in this workshop:
 
-- **Reglas en caché, no en bucle**: lo crítico vive en el prompt (`instructions`),
-  no en un archivo que el agente deba abrir cada turno.
-- **Una intención, una llamada**: `execute` para varias lecturas independientes.
-- **No reabrir** archivos con el mismo hash (`files.md`).
-- **Delegar** la lectura masiva a `explore`/`researcher` con salidas acotadas.
-- **Subir de tier solo si hace falta** (razonar de más en lo trivial es el mayor
-  desperdicio).
-- **`warming` desactivado** por defecto (solo útil en sesiones largas con pausas).
+- **Rules in cache, not in a loop**: the critical bits live in the prompt
+  (`instructions`), not in a file the agent must open every turn.
+- **One intention, one call**: `execute` for several independent reads.
+- **Don't reopen** files with the same hash (`files.md`).
+- **Delegate** bulk reading to `explore`/`researcher` with bounded output.
+- **Only go up a tier if needed** (over-reasoning on something trivial is the
+  biggest waste).
+- **`warming` disabled** by default (only useful in long sessions with pauses).
 
 ---
 
 ## 6. MCP
 
-- **context7** (remoto/OAuth): documentación actualizada de librerías.
-- **memory** (local): grafo de conocimiento persistente.
-- **notes-server** (`mcp/notes-server/`): MCP propio de ejemplo, sin
-  dependencias, expone la memoria del proyecto.
-- Ejemplos listos (comentados): `sequential-thinking`, `playwright`, `github`.
+- **context7** (remote/OAuth): up-to-date library documentation.
+- **memory** (local): persistent knowledge graph.
+- **notes-server** (`mcp/notes-server/`): own example MCP, no dependencies,
+  exposes the project memory.
+- Ready examples (commented out): `sequential-thinking`, `playwright`, `github`.
 
-Guía completa en `.opencode/skills/mcp-builder/SKILL.md`. En Windows, los MCP
-locales con npx se lanzan como `["cmd", "/c", "npx", ...]`.
+Full guide in `.opencode/skills/mcp-builder/SKILL.md`. On Windows, local MCPs
+that use npx are launched as `["cmd", "/c", "npx", ...]`.
 
 ---
 
-## 7. Instalación
+## 7. Installation
 
-### En este proyecto (ya funciona aquí)
-Basta con tener este directorio como workspace: OpenCode descubre
-`.opencode/` y `opencode.jsonc`.
+### In this project (already works here)
+Just have this directory as the workspace: OpenCode discovers `.opencode/` and
+`opencode.jsonc`.
 
-### Global (para todos los proyectos)
+### Global (for all projects)
 ```powershell
 pwsh -File .\install.ps1
 ```
-Copia agentes/comandos/skills a `~/.config/opencode/`, genera la config global
-ajustando la ruta de memoria y respalda cualquier `opencode.jsonc` previo.
+Copies agents/commands/skills to `~/.config/opencode/`, generates the global
+config adjusting the memory path, and backs up any previous `opencode.jsonc`.
 
-Después, en OpenCode:
-- El agente primario por defecto es **orchestrator**.
-- Ejecuta **`/mcps`** y firma en **context7**.
-- El servidor **memory** debería aparecer conectado.
+Then, in OpenCode:
+- The default primary agent is **orchestrator**.
+- Run **`/mcps`** and sign in to **context7**.
+- The **memory** server should appear connected.
 
 ---
 
-## 8. Uso rápido
+## 8. Quick usage
 
-| Comando | Qué hace |
+| Command | What it does |
 | --- | --- |
-| `/orq <tarea>` | Flujo completo (clasificar → planear → ejecutar → verificar) |
-| `/plan-quick` `/plan-deep` `/plan-long` | Forzar un tier de planeador |
-| `/build <tarea>` | Implementar con el creador principal |
-| `/review` | Revisión crítica independiente |
-| `/research <tema>` | Investigación + síntesis |
-| `/catalogo` | Ver modelos y roles |
-| `/memory-init` | Crear la memoria del proyecto |
-| `/errores` | Convertir los errores registrados en reglas |
-| `/modelos` | Ver familias, cooldowns y respaldo por rol |
+| `/orq <task>` | Full flow (classify → plan → execute → verify) |
+| `/plan-quick` `/plan-deep` `/plan-long` | Force a planner tier |
+| `/build <task>` | Implement with the main creator |
+| `/review` | Independent critical review |
+| `/research <topic>` | Research + synthesis |
+| `/catalogo` | See models and roles |
+| `/memory-init` | Create the project memory |
+| `/errores` | Turn logged errors into rules |
+| `/modelos` | See families, cooldowns, and per-role fallback |
 
-También puedes hablar normal: el orquestador decide solo.
+You can also just talk normally: the orchestrator decides on its own.
 
 ---
 
-## 9. Estructura
+## 9. Structure
 
 ```text
 ORQUESTADOR/
-├── opencode.jsonc            # modelo, permisos, MCP, compactación, worktree
-├── AGENTS.md                 # reglas del proyecto
-├── install.ps1               # instalación global
-├── global/AGENTS.md          # instrucciones globales
+├── opencode.jsonc            # model, permissions, MCP, compaction, worktree
+├── AGENTS.md                 # project rules
+├── install.ps1               # global install
+├── global/AGENTS.md          # global instructions
 ├── .opencode/
-│   ├── agents/               # 11 agentes
-│   ├── commands/             # 11 comandos
+│   ├── agents/               # 11 agents
+│   ├── commands/             # 11 commands
 │   ├── skills/               # model-router, context-memory, parallel-dispatch, mcp-builder
-│   └── plugins/              # error-memory (errores) + model-fallback (rotación)
-├── orquestador/             # rules.md (reglas) + models.json (familias y cadenas)
-├── .orquestador/memory/      # memoria del proyecto (INDEX, map, files, decisions, glossary)
-├── tools/                    # memory-digest.mjs, models-status.mjs (una llamada cada uno)
-└── mcp/notes-server/         # MCP propio de ejemplo (sin dependencias)
+│   └── plugins/              # error-memory (errors) + model-fallback (rotation)
+├── orquestador/             # rules.md (rules) + models.json (families and chains)
+├── .orquestador/memory/      # project memory (INDEX, map, files, decisions, glossary)
+├── tools/                    # memory-digest.mjs, models-status.mjs (one call each)
+└── mcp/notes-server/         # own example MCP (no dependencies)
 ```
 
-Al instalar (global) se crea además el almacén
+On install (global) it also creates the store
 `~/.config/opencode/orquestador/` (`rules.md`, `auto.md`, `errors.jsonl`,
-`models.json`, `model-cooldown.json`), que **no vive dentro de ningún proyecto**.
+`models.json`, `model-cooldown.json`), which **does not live inside any project**.
 
 ---
 
-## 10. Avisos y límites
+## 10. Notes and limits
 
-- El `model` raíz de OpenCode **no conserva la variante**; fíjala con el agente,
-  un comando o `/models`.
-- DeepSeek/GLM/MiMo son de **200k** de contexto: para volcar muchas lecturas usa
-  los de 1M (longcat, nemotron-ultra, space-bunny, muse-spark).
-- Los modelos gratuitos pueden tener **límites de uso/velocidad** y cambiar sin
-  avisar.
-- En Windows, `npx.ps1` está bloqueado por la política de ejecución: los MCP
-  locales deben usar `cmd /c npx`.
-- `warming` está desactivado por defecto (consume peticiones).
-- La memoria del proyecto es tan buena como su disciplina: si no se actualiza,
-  miente. Bórrala antes que arrastrarla.
+- OpenCode's root `model` **does not keep the variant**; pin it with the agent,
+  a command, or `/models`.
+- DeepSeek/GLM/MiMo have **200k** of context: to dump many reads, use the 1M ones
+  (longcat, nemotron-ultra, space-bunny, muse-spark).
+- Free models may have **usage/rate limits** and change without warning.
+- On Windows, `npx.ps1` is blocked by execution policy: local MCPs must use
+  `cmd /c npx`.
+- `warming` is disabled by default (consumes requests).
+- Project memory is as good as its discipline: if it is not updated, it lies.
+  Delete it rather than drag it along.
 
-## 11. Alcance: global vs. proyecto (y qué pasa en una carpeta en blanco)
+## 11. Scope: global vs. project (and what happens in a blank folder)
 
-Hay **dos capas** y conviene no confundirlas:
+There are **two layers** and it pays not to confuse them:
 
-| Capa | Dónde vive | Se aplica a |
+| Layer | Where it lives | Applies to |
 | --- | --- | --- |
-| **Global** | `~/.config/opencode/` (`opencode.jsonc`, `AGENTS.md`, `agents/`, `commands/`, `skills/`, `plugins/`, `orquestador/`) | **Todas** las carpetas donde abras OpenCode |
-| **Proyecto** | `<proyecto>/opencode.jsonc` y `<proyecto>/.opencode/` | Solo ese proyecto (pisa a la global) |
-| **Datos** | `~/.config/opencode/orquestador/` (errores, cooldown, reglas) y `~/.config/opencode/memory/graph.jsonl` | Global, compartido entre proyectos |
+| **Global** | `~/.config/opencode/` (`opencode.jsonc`, `AGENTS.md`, `agents/`, `commands/`, `skills/`, `plugins/`, `orquestador/`) | **Every** folder where you open OpenCode |
+| **Project** | `<project>/opencode.jsonc` and `<project>/.opencode/` | Only that project (overrides global) |
+| **Data** | `~/.config/opencode/orquestador/` (errors, cooldown, rules) and `~/.config/opencode/memory/graph.jsonl` | Global, shared across projects |
 
-**Si abres una carpeta en blanco** (sin `opencode.jsonc` propio) ya tienes todo:
-orquestador, subagentes, comandos (`/orq`, `/modelos`…), skills, los dos plugins
-(errores y rotación de modelos), las reglas en el prompt y los MCP
-(`context7`, `memory`). Lo único que **no** existe es la memoria local del
-proyecto (`.orquestador/memory/`), que es opcional y se crea con `/memory-init`.
+**If you open a blank folder** (with no `opencode.jsonc` of its own) you already
+have everything: orchestrator, subagents, commands (`/orq`, `/modelos`…), skills,
+both plugins (errors and model rotation), the rules in the prompt, and the MCPs
+(`context7`, `memory`). The only thing that does **not** exist is the project's
+local memory (`.orquestador/memory/`), which is optional and created with
+`/memory-init`.
 
-El repo `ORQUESTADOR/` es solo la **fuente + instalador**: una vez instalado en
-global, no necesitas trabajar dentro de él. Nada se escribe en tus proyectos
-salvo:
-- lo que tú decidas (p. ej. `/memory-init` crea `.orquestador/memory/` con un
-  `.gitignore` que lo auto-ignora), y
-- los worktrees, si los usas (`worktree.directory` es relativo al proyecto).
+The `ORQUESTADOR/` repo is only the **source + installer**: once installed
+globally, you don't need to work inside it. Nothing is written into your projects
+except:
+- what you decide (e.g. `/memory-init` creates `.orquestador/memory/` with a
+  `.gitignore` that self-ignores it), and
+- worktrees, if you use them (`worktree.directory` is relative to the project).
 
-## 12. Cómo compartirlo con otras personas
+## 12. How to share it with others
 
-El repo (o un zip del mismo) es autocontenido y **no lleva secretos**:
-`service.json` y las credenciales se quedan en la máquina de cada quien.
+The repo (or a zip of it) is self-contained and **carries no secrets**:
+`service.json` and credentials stay on each person's machine.
 
-Pasos para otra persona:
+Steps for another person:
 
-1. Tener **OpenCode V2** y **Node** (para los MCP locales y los scripts).
-2. Copiar/clonar la carpeta `ORQUESTADOR/`.
-3. Ejecutar el instalador (adapta las rutas absolutas a *su* `$env:USERPROFILE`):
+1. Have **OpenCode V2** and **Node** (for the local MCPs and the scripts).
+2. Copy/clone the `ORQUESTADOR/` folder.
+3. Run the installer (it adapts absolute paths to *their* `$env:USERPROFILE`):
 
    ```powershell
    powershell -ExecutionPolicy Bypass -File install.ps1
    ```
 
-   Instala agentes, comandos, skills, plugins, el manifiesto de modelos y las
-   reglas; y genera su config global (respaldando la que tuviera).
-4. Firmar Context7 la primera vez (`/mcps` o `/mcp`), porque es un MCP remoto
-   con autenticación.
+   It installs agents, commands, skills, plugins, the model manifest, and the
+   rules; and generates their global config (backing up whatever they had).
+4. Sign in to Context7 the first time (`/mcps` or `/mcp`), because it is a remote
+   MCP with authentication.
 
-Notas de convivencia:
+Coexistence notes:
 
-- Si la otra persona **ya tenía** un `AGENTS.md` global, el instalador **no lo
-  pisa**: debe fusionar a mano las líneas de `global/AGENTS.md`.
-- Re-ejecutar el instalador **actualiza** agentes/comandos/skills/plugins y
-  `models.json`, pero **conserva** tus reglas (`orquestador/rules.md`) y tu
-  `AGENTS.md` global. Para “actualizarse” basta volver a correrlo tras un `pull`.
-- El instalador es **PowerShell (Windows)**. En macOS/Linux hay que replicar los
-  mismos pasos (copiar a `~/.config/opencode/` y ajustar `MEMORY_FILE_PATH`);
-  considera ese port un `install.sh` pendiente.
-- Para personalizar: añade tus reglas a
-  `~/.config/opencode/orquestador/rules.md`, tus propias cadenas a
-  `models.json`, y tus hechos cross-proyecto a la memoria MCP.
+- If the other person **already had** a global `AGENTS.md`, the installer **does
+  not overwrite it**: they must merge the lines from `global/AGENTS.md` by hand.
+- Re-running the installer **updates** agents/commands/skills/plugins and
+  `models.json`, but **preserves** your rules (`orquestador/rules.md`) and your
+  global `AGENTS.md`. To "update", just run it again after a `pull`.
+- The installer is **PowerShell (Windows)**. On macOS/Linux you have to replicate
+  the same steps (copy to `~/.config/opencode/` and adjust `MEMORY_FILE_PATH`);
+  treat that port as a pending `install.sh`.
+- To customize: add your rules to
+  `~/.config/opencode/orquestador/rules.md`, your own chains to
+  `models.json`, and your cross-project facts to the MCP memory.
 
-## 13. Próximos pasos posibles
+## 13. Possible next steps
 
-- Añadir `playwright`/`github` (MCP) según necesidad.
-- Automatizar `map.md`/`files.md` con un `git hook` o plugin.
-- Probar `warming` para sesiones largas con pausas.
-- Explorar worktrees para paralelismo de escritura real.
+- Add `playwright`/`github` (MCP) as needed.
+- Automate `map.md`/`files.md` with a `git hook` or plugin.
+- Try `warming` for long sessions with pauses.
+- Explore worktrees for real write parallelism.

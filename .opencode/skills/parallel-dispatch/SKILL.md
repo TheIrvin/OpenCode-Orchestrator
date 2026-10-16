@@ -1,55 +1,55 @@
 ---
 name: Parallel Dispatch
-description: Cómo repartir trabajo entre subagentes en paralelo de forma segura (background, grafo de dependencias, worktrees) y cómo usar Code Mode para llamadas simultáneas.
+description: How to split work across subagents in parallel safely (background, dependency graph, worktrees) and how to use Code Mode for simultaneous calls.
 ---
 
-# Reparto en paralelo
+# Parallel dispatch
 
-## Aislamiento por contexto
+## Isolation by context
 
-Cada subagente corre en su **propia sesión hija con contexto fresco**
-(foreground o background). El padre no ve sus pasos internos, solo el resultado.
-Esto es lo que mantiene el hilo del orquestador limpio.
+Each subagent runs in its **own child session with fresh context**
+(foreground or background). The parent does not see its internal steps, only the result.
+This is what keeps the orchestrator's thread clean.
 
-## Patrón básico
+## Basic pattern
 
-1. **Construye el grafo de dependencias.** Marca cada unidad como `I`
-   (independiente) o `D` (depende de otra).
-2. **Lanza todas las `I` a la vez** con `background: true`.
-3. **Espera** sus resultados (te notifican al terminar).
-4. **Lanza las `D`** que ya tienen sus entradas resueltas.
+1. **Build the dependency graph.** Mark each unit as `I`
+   (independent) or `D` (depends on another).
+2. **Launch all the `I` at once** with `background: true`.
+3. **Wait** for their results (you are notified when they finish).
+4. **Launch the `D`** whose inputs are already resolved.
 
 ```text
 O -> [explore repo] (I)
-   -> [creator A: módulo X] (I)  ┐
-   -> [creator-alt B: módulo Y] (I)├─ en paralelo
+   -> [creator A: module X] (I)  ┐
+   -> [creator-alt B: module Y] (I)├─ in parallel
    -> [researcher: docs Z] (I)   ┘
-   -> [creator C: integra A+B] (D depende de A,B)
-   -> [critic: revisa todo]     (D depende de C)
+   -> [creator C: integrates A+B] (D depends on A,B)
+   -> [critic: reviews everything] (D depends on C)
 ```
 
-## Reglas
+## Rules
 
-- **Un dueño por archivo.** Nunca dos hijos editando el mismo archivo a la vez.
-  Si dos unidades tocan el mismo archivo, es una sola unidad o van en serie.
-- **Serializa lo que comparte estado** (misma BD, mismo índice, mismo archivo).
-- **Paraleliza lo que no se pisa** (módulos distintos, tests distintos, research).
-- **Acota la salida** de cada hijo para no inflar el padre.
+- **One owner per file.** Never two children editing the same file at once.
+  If two units touch the same file, it is a single unit or they run in series.
+- **Serialize what shares state** (same DB, same index, same file).
+- **Parallelize what does not collide** (different modules, different tests, research).
+- **Bound the output** of each child so the parent does not get inflated.
 
-## Worktrees (paralelismo de verdad)
+## Worktrees (true parallelism)
 
-Para trabajos que compiten por el mismo árbol de archivos usa **worktrees**:
+For work that competes for the same file tree, use **worktrees**:
 
-- `worktree_create` devuelve un directorio aislado del mismo proyecto.
-- `session_move` mueve la sesión a ese directorio.
-- Config del proyecto: `worktree.directory` (definido en `opencode.jsonc`).
-- Útil para: probar dos enfoques a la vez, migraciones largas, o dejar que dos
-  creadores trabajen sin pisarse.
+- `worktree_create` returns an isolated directory of the same project.
+- `session_move` moves the session to that directory.
+- Project config: `worktree.directory` (defined in `opencode.jsonc`).
+- Useful for: trying two approaches at once, long migrations, or letting two
+  creators work without stepping on each other.
 
-## Code Mode (`execute`) para paralelismo de herramientas
+## Code Mode (`execute`) for tool parallelism
 
-Dentro de un mismo agente, `execute` permite llamar varias herramientas
-independientes a la vez y quedarse solo con lo relevante:
+Within a single agent, `execute` lets you call several independent tools
+at once and keep only what is relevant:
 
 ```js
 const [a, b] = await Promise.all([
@@ -59,12 +59,12 @@ const [a, b] = await Promise.all([
 return { a: a.slice(0, 800), todos: b.length };
 ```
 
-Regla: **paraleliza lecturas/búsquedas independientes**, pero nunca escrituras
-concurrentes sobre el mismo recurso.
+Rule: **parallelize independent reads/searches**, but never concurrent
+writes to the same resource.
 
-## Antipatrones
+## Antipatterns
 
-- Lanzar 10 hijos para un cambio de una línea.
-- Lanzar hijos que devuelven el archivo entero (rompe el aislamiento).
-- Paralelizar dos `creator` sobre el mismo archivo.
-- Esperar en serie lo que era independiente.
+- Launching 10 children for a one-line change.
+- Launching children that return the entire file (breaks isolation).
+- Parallelizing two `creator`s on the same file.
+- Waiting in series for what was independent.

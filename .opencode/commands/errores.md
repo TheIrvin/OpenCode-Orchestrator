@@ -1,19 +1,19 @@
 ---
-description: Convierte los errores registrados (global) en reglas para no repetirlos
+description: Turn logged errors (global) into rules so they are not repeated
 agent: orchestrator
 model: opencode/beam-free#high
 subagent: false
 ---
 
-Revisa la memoria **global** de errores y conviértela en reglas accionables.
-Todo vive en `~/.config/opencode/orquestador/` (nunca dentro de un proyecto):
+Review the **global** error memory and turn it into actionable rules.
+Everything lives in `~/.config/opencode/orquestador/` (never inside a project):
 
-1. Lee `errors.jsonl` (registro crudo) y `auto.md` (digest de recurrentes).
-2. Agrupa por `signature` y detecta los que más se repiten.
-3. Escribe una **regla corta y accionable** por cada error real en `rules.md`
-   (que ya se carga en el prompt): qué NO hacer y qué hacer en su lugar. No
-   dupliques reglas existentes.
-4. Mantén `rules.md` breve (≈20 líneas); si crece, fusiona o elimina lo obsoleto.
-5. Si el error sirve en otros proyectos, guárdalo en la memoria MCP (`memory`).
+1. Read `errors.jsonl` (raw log) and `auto.md` (recurring digest).
+2. Group by `signature` and detect the most repeated ones.
+3. Write one **short, actionable rule** per real error in `rules.md`
+   (already loaded in the prompt): what NOT to do and what to do instead. Do
+   not duplicate existing rules.
+4. Keep `rules.md` short (≈20 lines); if it grows, merge or remove the obsolete.
+5. If the error is useful in other projects, save it to the MCP memory (`memory`).
 
-Tema a priorizar si el usuario lo indica: $ARGUMENTS
+Topic to prioritize if the user indicates one: $ARGUMENTS

@@ -1,21 +1,21 @@
-# Memoria del proyecto — índice
+# Project memory — index
 
-Lee este archivo **primero**. Si el mapa cubre lo que necesitas, no vuelvas a
-escanear el repositorio.
+Read this file **first**. If the map covers what you need, don't scan the
+repository again.
 
-- Mapa de módulos y archivos clave: `map.md`
-- Archivos revisados (hash git + resumen): `files.md`
-- Decisiones y por qué: `decisions.md`
-- Glosario del dominio: `glossary.md`
-- Errores y reglas: **globales**, en `~/.config/opencode/orquestador/`
-  (`rules.md`, `auto.md`, `errors.jsonl`) — nunca dentro del proyecto
-- Familias y cadenas de modelos (respaldo/rotación): `models.json` (mismo dir)
-- Grafo de memoria MCP (hechos cross-proyecto): `graph.jsonl`
-- Última actualización: 2026-10-16
+- Module and key-file map: `map.md`
+- Reviewed files (git hash + summary): `files.md`
+- Decisions and why: `decisions.md`
+- Domain glossary: `glossary.md`
+- Errors and rules: **global**, in `~/.config/opencode/orquestador/`
+  (`rules.md`, `auto.md`, `errors.jsonl`) — never inside the project
+- Model families and chains (fallback/rotation): `models.json` (same dir)
+- MCP memory graph (cross-project facts): `graph.jsonl`
+- Last update: 2026-10-16
 
-## Cómo usar esta memoria
+## How to use this memory
 
-1. Antes de leer un archivo, comprueba su hash: `git hash-object <archivo>`.
-   Si coincide con `files.md`, confía en el resumen.
-2. Después de aprender algo nuevo, actualiza `map.md`/`files.md`/`decisions.md`.
-3. Hechos que sirven en otros proyectos → MCP `memory` (no aquí).
+1. Before reading a file, check its hash: `git hash-object <file>`.
+   If it matches `files.md`, trust the summary.
+2. After learning something new, update `map.md`/`files.md`/`decisions.md`.
+3. Facts that are useful in other projects → MCP `memory` (not here).

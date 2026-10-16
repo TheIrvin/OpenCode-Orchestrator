@@ -1,45 +1,45 @@
-# ORQUESTADOR — instrucciones del proyecto
+# ORQUESTADOR — project instructions
 
-Este repositorio contiene una configuración de orquestación multi-agente para
-OpenCode. Todo el trabajo pesado debe pasar por el agente **orchestrator**.
+This repository contains a multi-agent orchestration setup for
+OpenCode. All heavy work must go through the **orchestrator** agent.
 
-## Reglas del proyecto
+## Project rules
 
-1. **Delegar antes que ejecutar.** El agente primario no resuelve tareas largas
-   por sí mismo: descompone y lanza subagentes.
-2. **Elegir el tier correcto.** Antes de planificar, carga la skill
-   `model-router` y sigue su matriz de decisión para elegir planeador, creador
-   y verificador según el tamaño/complejidad del problema.
-2b. **No releer sin necesidad.** Lee primero `.orquestador/memory/INDEX.md` y
-   compara hashes (`git hash-object`) antes de abrir archivos ya revisados.
-   Actualiza la memoria al terminar (skill `context-memory`).
-2c. **No repetir errores.** Las reglas viven en
-   `~/.config/opencode/orquestador/` y se cargan solas en el prompt
-   (`instructions`): **no las leas otra vez**. Cada fallo se registra solo
-   (plugin `error-memory`, fuera del proyecto). Promueve recurrentes a reglas
-   con `/errores`.
-2d. **No dejar archivos libres.** El sistema no escribe nada dentro de los
-   proyectos trabajados. Si algo debe persistir, va a un directorio global
-   (`~/.config/opencode/orquestador/`) o a un MCP; nunca sueltes archivos en el
-   repo del usuario.
-3. **Paralelizar lo independiente.** Usa `background: true` en el tool
-   `subagent` para lanzar varios hijos a la vez, y Code Mode (`execute`) para
-   llamadas de herramientas independientes.
-4. **Verificar siempre.** Ninguna tarea se declara terminada sin pasar por el
-   subagente `critic` (modelo de familia distinta al creador).
-5. **No leer `.env`** salvo autorización explícita.
-6. **Convención de traspaso (handoff)** entre agentes: Objetivo · Contexto ·
-   Archivos · Criterios de aceptación · Formato de salida.
-7. **Modelos gratuitos.** Todos los agentes usan el proveedor `opencode`
-   (modelos free, coste 0). No introduzcas modelos de pago sin permiso.
-8. **Rotación de modelos.** Cada rol tiene una cadena de respaldo por familias
-   (`orquestador/models.json`). Si un modelo se agota, el plugin `model-fallback`
-   rota solo; consulta `/modelos`. No insistas con un modelo caído.
+1. **Delegate before executing.** The primary agent does not solve long tasks
+   by itself: it breaks them down and launches subagents.
+2. **Pick the right tier.** Before planning, load the
+   `model-router` skill and follow its decision matrix to choose the planner, creator
+   and verifier based on the size/complexity of the problem.
+2b. **Don't re-read unnecessarily.** Read `.orquestador/memory/INDEX.md` first and
+   compare hashes (`git hash-object`) before opening already-reviewed files.
+   Update the memory when done (`context-memory` skill).
+2c. **Don't repeat failures.** The rules live in
+   `~/.config/opencode/orquestador/` and load on their own into the prompt
+   (`instructions`): **don't read them again**. Each failure is logged on its own
+   (`error-memory` plugin, outside the project). Promote recurring ones to rules
+   with `/errores`.
+2d. **Don't leave stray files.** The system writes nothing inside the
+   projects being worked on. If something must persist, it goes to a global directory
+   (`~/.config/opencode/orquestador/`) or to an MCP; never drop files into the
+   user's repo.
+3. **Parallelize the independent.** Use `background: true` in the
+   `subagent` tool to launch several children at once, and Code Mode (`execute`) for
+   independent tool calls.
+4. **Always verify.** No task is declared done without going through the
+   `critic` subagent (a model from a different family than the creator).
+5. **Don't read `.env`** without explicit authorization.
+6. **Handoff convention** between agents: Objective · Context ·
+   Files · Acceptance criteria · Output format.
+7. **Free models.** All agents use the `opencode` provider
+   (free models, cost 0). Don't introduce paid models without permission.
+8. **Model rotation.** Each role has a fallback chain by families
+   (`orquestador/models.json`). If a model is exhausted, the `model-fallback` plugin
+   rotates on its own; see `/modelos`. Don't insist on a dead model.
 
-## Documentación
+## Documentation
 
-- Plan y arquitectura: `README.md`
-- Matriz de modelos y cambio automático: `.opencode/skills/model-router/SKILL.md`
-- Contexto, memoria y anti-relectura: `.opencode/skills/context-memory/SKILL.md`
-- Paralelismo y worktrees: `.opencode/skills/parallel-dispatch/SKILL.md`
-- MCP (usar y crear): `.opencode/skills/mcp-builder/SKILL.md`
+- Plan and architecture: `README.md`
+- Model matrix and automatic switching: `.opencode/skills/model-router/SKILL.md`
+- Context, memory and anti-re-reading: `.opencode/skills/context-memory/SKILL.md`
+- Parallelism and worktrees: `.opencode/skills/parallel-dispatch/SKILL.md`
+- MCP (use and create): `.opencode/skills/mcp-builder/SKILL.md`

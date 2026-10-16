@@ -1,59 +1,55 @@
 ---
 name: Model Router
-description: Matriz para elegir el subagente y el nivel de razonamiento correcto según el tamaño y la naturaleza del problema. Cárgala antes de planificar o repartir trabajo.
+description: Matrix for choosing the right subagent and reasoning level based on the size and nature of the problem. Load it before planning or dispatching work.
 ---
 
-# Router de modelos (catálogo gratuito de OpenCode)
+# Model router (OpenCode free catalog)
 
-Proveedor: `opencode` (todos los modelos son **gratis**, coste 0). El
-`#variant` es el **esfuerzo de razonamiento**; más esfuerzo = más lento y más
-profundo. No todos los modelos exponen todas las variantes.
+Provider: `opencode` (all models are **free**, cost 0). The
+`#variant` is the **reasoning effort**; more effort = slower and
+deeper. Not all models expose all variants.
 
-## Catálogo real (verificado)
+## Real catalog (verified)
 
-| Modelo (ID) | Contexto | Salida | Visión | Variantes |
+| Model (ID) | Context | Output | Vision | Variants |
 | --- | ---: | ---: | --- | --- |
 | `opencode/nemotron-3.5-super-vl-free` | 1.05M | 131k | imagen | none, minimal, low, medium, high, xhigh |
 | `opencode/beam-free` | 1.05M | 131k | — | low, medium, high, xhigh, max |
-| `opencode/longcat-2.5-preview-free` | 1M | 131k | imagen | (ninguna) |
-| `opencode/space-bunny-free` | 1.05M | 524k | imagen, vídeo | low, medium, high, xhigh, max |
-| `opencode/mimo-v2.6-flash-free` | 200k | 32k | imagen, audio, vídeo | (ninguna) |
-| `opencode/deepseek-v4.1-flash-free` | 200k | 32k | imagen | low, high, max |
-| `opencode/muse-spark-1.3-contributor-free` | 1.05M | 131k | imagen, vídeo, PDF, audio | minimal, low, medium, high, xhigh |
-| `opencode/glm-5.3-flash-free` | 200k | 32k | imagen, vídeo, PDF | low, high, max |
-| `opencode/nemotron-3.5-lightning-free` | 262k | 262k | — | (ninguna) |
-| `opencode/nemotron-3-ultra-free` | 1M | 128k | — | (ninguna) |
-| `opencode/big-pickle` | 200k | 32k | — | (ninguna) |
+| `opencode/longcat-2.5-preview-free` | 1M | 131k | image | (none) |
+| `opencode/space-bunny-free` | 1.05M | 524k | image, video | low, medium, high, xhigh, max |
+| `opencode/mimo-v2.6-flash-free` | 200k | 32k | image, audio, video | (none) |
+| `opencode/deepseek-v4.1-flash-free` | 200k | 32k | image | low, high, max |
+| `opencode/muse-spark-1.3-contributor-free` | 1.05M | 131k | image, video, PDF, audio | minimal, low, medium, high, xhigh |
+| `opencode/glm-5.3-flash-free` | 200k | 32k | image, video, PDF | low, high, max |
+| `opencode/nemotron-3.5-lightning-free` | 262k | 262k | — | (none) |
+| `opencode/nemotron-3-ultra-free` | 1M | 128k | — | (none) |
+| `opencode/big-pickle` | 200k | 32k | — | (none) |
 
-## Cómo se aplica el cambio de modelo
+## How model switching applies
 
-Cada subagente ya trae su modelo y variante fijados en su definición. **Elegir
-el tier correcto ES el cambio automático de modelo.** El orquestador no cambia
-el modelo de un hijo a mitad de vuelo: elige el hijo adecuado desde el inicio.
+Each subagent already comes with its model and variant pinned in its definition. **Choosing the right tier IS the automatic model switch.** The orchestrator does not change a child's model mid-flight: it picks the right child from the start.
 
-| Necesidad | Subagente | Modelo resultante |
+| Need | Subagent | Resulting model |
 | --- | --- | --- |
-| Coordinar, decidir, consolidar | `orchestrator` | `beam-free#xhigh` |
-| Plan pequeño (1–2 archivos) | `planner-fast` | `big-pickle` |
-| Plan medio (un módulo) | `planner` | `space-bunny-free#high` |
-| Plan complejo (tradeoffs, riesgo) | `planner-deep` | `space-bunny-free#max` |
-| Plan extenso (migración, arquitectura) | `planner-long` | `nemotron-3-ultra-free` |
-| Mapear/buscar rápido en el repo | `explore` | `nemotron-3.5-lightning-free` |
-| Investigar web/docs/síntesis | `researcher` | `longcat-2.5-preview-free` |
-| Escribir código | `creator` | `deepseek-v4.1-flash-free#high` |
-| Código paralelo / segunda versión | `creator-alt` | `glm-5.3-flash-free#high` |
-| Verificar (otra familia) | `critic` | `muse-spark-1.3-contributor-free#high` |
-| Ver imágenes/PDF | `vision` | `nemotron-3.5-super-vl-free#high` |
-| Documentar | `docs` | `muse-spark-1.3-contributor-free#medium` |
+| Coordinate, decide, consolidate | `orchestrator` | `beam-free#xhigh` |
+| Small plan (1–2 files) | `planner-fast` | `big-pickle` |
+| Medium plan (one module) | `planner` | `space-bunny-free#high` |
+| Complex plan (tradeoffs, risk) | `planner-deep` | `space-bunny-free#max` |
+| Large plan (migration, architecture) | `planner-long` | `nemotron-3-ultra-free` |
+| Map/search the repo quickly | `explore` | `nemotron-3.5-lightning-free` |
+| Research web/docs/synthesis | `researcher` | `longcat-2.5-preview-free` |
+| Write code | `creator` | `deepseek-v4.1-flash-free#high` |
+| Parallel code / second version | `creator-alt` | `glm-5.3-flash-free#high` |
+| Verify (different family) | `critic` | `muse-spark-1.3-contributor-free#high` |
+| View images/PDF | `vision` | `nemotron-3.5-super-vl-free#high` |
+| Document | `docs` | `muse-spark-1.3-contributor-free#medium` |
 
-## Cadenas de respaldo (rotación cuando un modelo se agota)
+## Fallback chains (rotation when a model is exhausted)
 
-Los modelos gratuitos se agotan **por familia** (a veces caen todos los de una
-misma procedencia, p. ej. los NVIDIA). Por eso cada rol tiene una **cadena
-ordenada** que salta a otra familia. Fuente única:
-`~/.config/opencode/orquestador/models.json` (en el repo: `orquestador/models.json`).
+Free models get exhausted **by family** (sometimes all models from the same origin go down, e.g. NVIDIA ones). That is why each role has an **ordered chain** that jumps to another family. Single source:
+`~/.config/opencode/orquestador/models.json` (in the repo: `orquestador/models.json`).
 
-| Rol | 1.º (preferido) | 2.º | 3.º | 4.º |
+| Role | 1st (preferred) | 2nd | 3rd | 4th |
 | --- | --- | --- | --- | --- |
 | `orchestrator` | `beam-free#xhigh` | `space-bunny-free#high` | `muse-spark…#high` | `longcat-2.5` |
 | `creator` | `deepseek-v4.1#high` | `glm-5.3#high` | `space-bunny#high` | `mimo-v2.6` |
@@ -68,50 +64,51 @@ ordenada** que salta a otra familia. Fuente única:
 | `vision` | `nemotron-super-vl#high` | `muse-spark#high` | `mimo-v2.6` | `glm-5.3#high` |
 | `docs` | `muse-spark#medium` | `longcat-2.5` | `space-bunny#medium` | `glm-5.3#high` |
 
-**Automático:** el plugin `model-fallback` detecta un fallo de proveedor
-(`429`, `404`, `5xx`, "unavailable"/"quota"...), marca ese modelo en *cooldown*
-y cambia la sesión al siguiente modelo de la cadena, **prefiriendo otra
-familia**. Así, si se agota NVIDIA, la sesión sigue con DeepSeek/Zhipu/etc.
+**Automatic:** the `model-fallback` plugin detects a provider failure
+(`429`, `404`, `5xx`, "unavailable"/"quota"...), marks that model as *cooldown*
+and switches the session to the next model in the chain, **preferring a
+different family**. So if NVIDIA runs out, the session continues with
+DeepSeek/Zhipu/etc.
 
-**Manual:** con `/modelos` ves qué está en cooldown y cuál es el modelo sano por
-rol. Si el orquestador lanza un subagente y su modelo está caído, elige el tier
-de la misma cadena que esté disponible.
+**Manual:** with `/modelos` you see what is in cooldown and which model is
+healthy per role. If the orchestrator launches a subagent and its model is
+down, pick the available tier from the same chain.
 
-> No rotes modelos "por gusto" en cada llamada: eso rompe la caché de prompt y
-> la coherencia. **Rota solo cuando el actual falla.**
+> Do not rotate models "just because" on every call: that breaks prompt caching
+> and coherence. **Rotate only when the current one fails.**
 
-## Matriz de decisión (tamaño → tier de planeador)
+## Decision matrix (size → planner tier)
 
-Clasifica primero el trabajo:
+Classify the work first:
 
-- **S** — 1–2 archivos, sin ambigüedad, cambio obvio → `planner-fast`. Salta
-  `explore` si el archivo es conocido (usa la memoria).
-- **M** — un módulo, un refactor acotado, decisiones menores → `planner`.
-- **L** — varios módulos, hay que coordinar → `planner-deep`.
-- **XL** — migración, arquitectura, muchos archivos, fases → `planner-long`.
+- **S** — 1–2 files, no ambiguity, obvious change → `planner-fast`. Skip
+  `explore` if the file is known (use memory).
+- **M** — one module, a scoped refactor, minor decisions → `planner`.
+- **L** — several modules, coordination needed → `planner-deep`.
+- **XL** — migration, architecture, many files, phases → `planner-long`.
 
-Señales que **suben** de tier (escala siempre que aparezcan):
+Signals that move **up** a tier (always escalate when they appear):
 
-- Más de ~3 archivos afectados.
-- Decisiones de diseño con tradeoffs reales.
-- Riesgo de regresión alto o datos/seguridad de por medio.
-- Requisitos ambiguos o contradictorios.
-- Trabajo que no cabe en una sola pasada.
+- More than ~3 files affected.
+- Design decisions with real tradeoffs.
+- High regression risk or data/security involved.
+- Ambiguous or contradictory requirements.
+- Work that does not fit in a single pass.
 
-Señales que **bajan** de tier:
+Signals that move **down** a tier:
 
-- Cambio trivial, mecánico, repetitivo.
-- Ya existe un plan previo en la memoria del proyecto.
+- Trivial, mechanical, repetitive change.
+- A prior plan already exists in the project memory.
 
-## Reglas de oro
+## Golden rules
 
-1. **Nunca uses el planeador caro para lo trivial** (ni viceversa).
-2. **El creador nunca es el mismo modelo que el crítico** (familias distintas).
-3. **DeepSeek/GLM/MiMo son de 200k** de contexto: para volcar muchas lecturas,
-   usa `longcat`/`nemotron-ultra`/`space-bunny`/`muse-spark` (1M).
-4. **Visión**: imágenes→`nemotron-super-vl`; audio/vídeo→`mimo` o `muse-spark`;
-   PDF→`muse-spark` o `glm`.
-5. Si un tier se queda corto, **reasigna al siguiente tier superior**, no
-   repitas el mismo intento.
-6. Para fijar variante en la sesión primaria usa `/models` o un comando con
-   `model:` (p. ej. `/deep`); el `model` raíz no conserva la variante.
+1. **Never use the expensive planner for the trivial** (nor vice versa).
+2. **The creator is never the same model as the critic** (different families).
+3. **DeepSeek/GLM/MiMo have 200k** of context: to dump many reads,
+   use `longcat`/`nemotron-ultra`/`space-bunny`/`muse-spark` (1M).
+4. **Vision**: images→`nemotron-super-vl`; audio/video→`mimo` or `muse-spark`;
+   PDF→`muse-spark` or `glm`.
+5. If a tier falls short, **reassign to the next higher tier**, do not
+   repeat the same attempt.
+6. To pin a variant in the primary session use `/models` or a command with
+   `model:` (e.g. `/plan-deep`); the root `model` does not preserve the variant.

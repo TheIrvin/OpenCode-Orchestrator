@@ -1,27 +1,27 @@
-# notes-server (MCP propio de ejemplo)
+# notes-server (sample self-built MCP)
 
-Servidor MCP local, sin dependencias, que expone la memoria del proyecto
-(`.orquestador/memory/`) como herramientas para los agentes.
+Local MCP server, dependency-free, that exposes the project memory
+(`.orquestador/memory/`) as tools for agents.
 
-## Herramientas
+## Tools
 
-| Herramienta | Para qué |
+| Tool | What for |
 | --- | --- |
-| `notes_list` | Ver qué archivos de memoria existen |
-| `notes_search` | Buscar antes de releer ("¿ya revisamos X?") |
-| `notes_read` | Leer un archivo con paginación |
-| `notes_append` | Registrar un hallazgo/decisión |
+| `notes_list` | See which memory files exist |
+| `notes_search` | Search before re-reading ("did we already review X?") |
+| `notes_read` | Read a file with pagination |
+| `notes_append` | Log a finding/decision |
 
-## Probarlo a mano
+## Try it by hand
 
 ```sh
 # Windows
 set NOTES_DIR=.orquestador\memory && echo {"jsonrpc":"2.0","id":1,"method":"tools/list"} | node mcp/notes-server/index.mjs
 ```
 
-Deberías ver una línea JSON con la lista de herramientas.
+You should see one JSON line with the tool list.
 
-## Conectarlo a OpenCode
+## Connect it to OpenCode
 
 ```jsonc
 {
@@ -38,13 +38,13 @@ Deberías ver una línea JSON con la lista de herramientas.
 }
 ```
 
-Recuerda: con Code Mode (por defecto) las herramientas aparecen como
-`tools.notes.notes_search(...)` dentro de `execute`.
+Remember: with Code Mode (default) the tools show up as
+`tools.notes.notes_search(...)` inside `execute`.
 
-## Crear el tuyo
+## Create your own
 
-1. Copia esta carpeta y cambia las herramientas en `TOOLS` y el `switch` de
+1. Copy this folder and change the tools in `TOOLS` and the `switch` of
    `callTool`.
-2. Mantén las salidas compactas y con límites.
-3. No devuelvas secretos; no ejecutes acciones destructivas sin confirmación.
-4. Si el servidor crece, migra al SDK oficial `@modelcontextprotocol/sdk`.
+2. Keep outputs compact and with limits.
+3. Don't return secrets; don't run destructive actions without confirmation.
+4. If the server grows, migrate to the official SDK `@modelcontextprotocol/sdk`.

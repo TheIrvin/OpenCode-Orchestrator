@@ -1,6 +1,6 @@
-# La memoria de errores YA NO vive aquí: es global y está en
-# ~/.config/opencode/orquestador/ (nunca dentro de los proyectos).
-# Se ignoran los artefactos volátiles de la memoria local.
+# The error memory NO LONGER lives here: it is global and lives in
+# ~/.config/opencode/orquestador/ (never inside projects).
+# Volatile artifacts of the local memory are ignored.
 graph.jsonl
 *.jsonl
 plugin-*.txt

@@ -1,10 +1,10 @@
-# Glosario
+# Glossary
 
-| Término | Significado |
+| Term | Meaning |
 | --- | --- |
-| Orquestador | Agente primario que coordina; no hace el trabajo pesado |
-| Tier | Nivel de planeador (fast/medio/deep/long) según tamaño del problema |
-| Handoff | Formato de traspaso: Objetivo · Contexto · Archivos · Criterios · Salida |
-| Variante (`#high`, `#max`) | Esfuerzo de razonamiento del modelo |
-| Worktree | Copia aislada del repo para trabajar en paralelo sin pisarse |
-| Code Mode | Ejecución JS (`execute`) para combinar herramientas |
+| Orchestrator | Primary agent that coordinates; it does not do the heavy work |
+| Tier | Planner level (fast/medium/deep/long) based on the size of the problem |
+| Handoff | Handoff format: Objective · Context · Files · Criteria · Output |
+| Variant (`#high`, `#max`) | The model's reasoning effort |
+| Worktree | Isolated copy of the repo to work in parallel without collisions |
+| Code Mode | JS execution (`execute`) to combine tools |
