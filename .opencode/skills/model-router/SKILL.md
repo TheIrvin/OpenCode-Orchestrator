@@ -28,7 +28,7 @@ profundo. No todos los modelos exponen todas las variantes.
 ## Cómo se aplica el cambio de modelo
 
 Cada subagente ya trae su modelo y variante fijados en su definición. **Elegir
-el tier correcto ES el cambio automático de modelo.** El orquestador no cambia
+el tier correcto ES el cambio automático de modelo.** El orchestrator no cambia
 el modelo de un hijo a mitad de vuelo: elige el hijo adecuado desde el inicio.
 
 | Necesidad | Subagente | Modelo resultante |
@@ -51,7 +51,7 @@ el modelo de un hijo a mitad de vuelo: elige el hijo adecuado desde el inicio.
 Los modelos gratuitos se agotan **por familia** (a veces caen todos los de una
 misma procedencia, p. ej. los NVIDIA). Por eso cada rol tiene una **cadena
 ordenada** que salta a otra familia. Fuente única:
-`~/.config/opencode/orquestador/models.json` (en el repo: `orquestador/models.json`).
+`~/.config/opencode/orchestrator/models.json` (en el repo: `orchestrator/models.json`).
 
 | Rol | 1.º (preferido) | 2.º | 3.º | 4.º |
 | --- | --- | --- | --- | --- |
@@ -74,7 +74,7 @@ y cambia la sesión al siguiente modelo de la cadena, **prefiriendo otra
 familia**. Así, si se agota NVIDIA, la sesión sigue con DeepSeek/Zhipu/etc.
 
 **Manual:** con `/modelos` ves qué está en cooldown y cuál es el modelo sano por
-rol. Si el orquestador lanza un subagente y su modelo está caído, elige el tier
+rol. Si el orchestrator lanza un subagente y su modelo está caído, elige el tier
 de la misma cadena que esté disponible.
 
 > No rotes modelos "por gusto" en cada llamada: eso rompe la caché de prompt y

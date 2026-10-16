@@ -22,15 +22,15 @@ los mecanismos nativos de OpenCode con una **memoria persistente** propia.
 | **Snapshots** | Undo de archivos + conversación | Revertir experimentos sin ensuciar git |
 
 ### Regla de oro de aislamiento
-> Lee en el subagente, **resume en el padre**. El hilo del orquestador debe
+> Lee en el subagente, **resume en el padre**. El hilo del orchestrator debe
 > contener conclusiones, no volcados de archivos.
 
-## 2. Memoria persistente del proyecto (`.orquestador/memory/`)
+## 2. Memoria persistente del proyecto (`.orchestrator/memory/`)
 
 Directorio versionable, legible por humanos y por agentes:
 
 ```text
-.orquestador/memory/
+.orchestrator/memory/
 ├── INDEX.md       # hub mínimo: se lee primero, siempre
 ├── map.md         # mapa de módulos y archivos clave → propósito
 ├── files.md       # archivo → hash git + resumen de una línea + fecha
@@ -75,7 +75,7 @@ MCP local `memory`:
   `search_nodes`, `read_graph`.
 
 Regla: **¿lo necesitaré en otro proyecto o sesión?** → MCP memory.
-**¿Es sobre este repo y su código?** → `.orquestador/memory/`.
+**¿Es sobre este repo y su código?** → `.orchestrator/memory/`.
 
 ## 4. Memoria de errores (global, sin archivos en el proyecto)
 
@@ -83,7 +83,7 @@ El plugin `error-memory` (`.opencode/plugins/error-memory.ts`) escucha cada fall
 de herramienta y lo guarda **fuera del repositorio**, en un almacén global:
 
 ```text
-~/.config/opencode/orquestador/
+~/.config/opencode/orchestrator/
 ├── rules.md      # reglas curadas · se cargan como `instructions` (caché)
 ├── auto.md       # digest de errores recurrentes · también en `instructions`
 └── errors.jsonl  # registro crudo (append-only, con el proyecto de origen)

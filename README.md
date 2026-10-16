@@ -1,10 +1,11 @@
-# ORQUESTADOR
+# ORCHESTRATOR
 
-A **multi-model, parallel** agent workshop for [OpenCode V2](https://opencode.ai/v2/docs/),
-built **only with free models**. An **orchestrator** agent classifies the problem,
-picks the right **planner** based on its size, splits the work across subagents in
-parallel, verifies with an independent critic, and stores context in a
-**persistent memory** so it never re-reviews what it already saw.
+**A multi-model, parallel agent workshop for [OpenCode V2](https://opencode.ai/v2/docs/) — free models only.**
+
+An **orchestrator** agent classifies the problem, picks the right **planner**
+based on its size, splits the work across subagents in parallel, verifies with an
+independent critic, and stores context in a **persistent memory** so it never
+re-reviews what it already saw.
 
 ---
 
@@ -45,7 +46,7 @@ All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
           │                                           │
           └──────────────► critic (verifies) ◄─────────┘
                                    │
-                          .orquestador/memory/  +  MCP memory
+                          .orchestrator/memory/  +  MCP memory
 ```
 
 ### Agents
@@ -91,9 +92,9 @@ variant) use `/models` or the commands with `model:` (`/orq`, `/plan-deep`, …)
 Free models get exhausted **by family** (e.g. the NVIDIA ones can go down
 together). OpenCode has **no** native fallback, so the workshop implements it:
 
-- **Manifest** `orquestador/models.json`: model families + an **ordered chain per
+- **Manifest** `orchestrator/models.json`: model families + an **ordered chain per
   role**. On install it is copied to
-  `~/.config/opencode/orquestador/models.json`.
+  `~/.config/opencode/orchestrator/models.json`.
 - **Plugin** `model-fallback`: on the `retry` hook it detects provider failures
   (`429`, `404`, `5xx`, "unavailable"/"quota"...), marks the model in *cooldown*,
   and switches the session to the **next model from another family** with
@@ -138,7 +139,7 @@ files wastes time. Solution in **layers**:
 | References | External directories with cache (24h refresh) |
 | Snapshots | File + conversation undo (`/undo`) |
 
-### 5.2 Project persistent memory (`.orquestador/memory/`)
+### 5.2 Project persistent memory (`.orchestrator/memory/`)
 | File | Content |
 | --- | --- |
 | `INDEX.md` | Minimal hub (read first) |
@@ -155,7 +156,7 @@ with `files.md`. If it matches, trust the summary.
 repos/projects: preferences, conventions, global architecture.
 
 > Decision: **do I need it in another project?** → MCP `memory`.
-> **is it about this repo?** → `.orquestador/memory/`.
+> **is it about this repo?** → `.orchestrator/memory/`.
 > Detail in `.opencode/skills/context-memory/SKILL.md`.
 
 ### 5.4 Error memory (global, no files in the project)
@@ -164,7 +165,7 @@ A plugin (`error-memory`) listens for the end of every tool and, **if it failed*
 stores it **outside the repository**, in a global store:
 
 ```text
-~/.config/opencode/orquestador/
+~/.config/opencode/orchestrator/
 ├── rules.md      # curated rules · loaded as `instructions` (cached prompt)
 ├── auto.md       # digest of recurring errors · also in `instructions`
 └── errors.jsonl  # raw log (append-only, with the project of origin)
@@ -256,7 +257,7 @@ You can also just talk normally: the orchestrator decides on its own.
 ## 9. Structure
 
 ```text
-ORQUESTADOR/
+ORCHESTRATOR/
 ├── opencode.jsonc            # model, permissions, MCP, compaction, worktree
 ├── AGENTS.md                 # project rules
 ├── install.ps1               # global install
@@ -266,14 +267,14 @@ ORQUESTADOR/
 │   ├── commands/             # 11 commands
 │   ├── skills/               # model-router, context-memory, parallel-dispatch, mcp-builder
 │   └── plugins/              # error-memory (errors) + model-fallback (rotation)
-├── orquestador/             # rules.md (rules) + models.json (families and chains)
-├── .orquestador/memory/      # project memory (INDEX, map, files, decisions, glossary)
+├── orchestrator/             # rules.md (rules) + models.json (families and chains)
+├── .orchestrator/memory/      # project memory (INDEX, map, files, decisions, glossary)
 ├── tools/                    # memory-digest.mjs, models-status.mjs (one call each)
 └── mcp/notes-server/         # own example MCP (no dependencies)
 ```
 
 On install (global) it also creates the store
-`~/.config/opencode/orquestador/` (`rules.md`, `auto.md`, `errors.jsonl`,
+`~/.config/opencode/orchestrator/` (`rules.md`, `auto.md`, `errors.jsonl`,
 `models.json`, `model-cooldown.json`), which **does not live inside any project**.
 
 ---
@@ -297,21 +298,21 @@ There are **two layers** and it pays not to confuse them:
 
 | Layer | Where it lives | Applies to |
 | --- | --- | --- |
-| **Global** | `~/.config/opencode/` (`opencode.jsonc`, `AGENTS.md`, `agents/`, `commands/`, `skills/`, `plugins/`, `orquestador/`) | **Every** folder where you open OpenCode |
+| **Global** | `~/.config/opencode/` (`opencode.jsonc`, `AGENTS.md`, `agents/`, `commands/`, `skills/`, `plugins/`, `orchestrator/`) | **Every** folder where you open OpenCode |
 | **Project** | `<project>/opencode.jsonc` and `<project>/.opencode/` | Only that project (overrides global) |
-| **Data** | `~/.config/opencode/orquestador/` (errors, cooldown, rules) and `~/.config/opencode/memory/graph.jsonl` | Global, shared across projects |
+| **Data** | `~/.config/opencode/orchestrator/` (errors, cooldown, rules) and `~/.config/opencode/memory/graph.jsonl` | Global, shared across projects |
 
 **If you open a blank folder** (with no `opencode.jsonc` of its own) you already
 have everything: orchestrator, subagents, commands (`/orq`, `/modelos`…), skills,
 both plugins (errors and model rotation), the rules in the prompt, and the MCPs
 (`context7`, `memory`). The only thing that does **not** exist is the project's
-local memory (`.orquestador/memory/`), which is optional and created with
+local memory (`.orchestrator/memory/`), which is optional and created with
 `/memory-init`.
 
-The `ORQUESTADOR/` repo is only the **source + installer**: once installed
+The `ORCHESTRATOR/` repo is only the **source + installer**: once installed
 globally, you don't need to work inside it. Nothing is written into your projects
 except:
-- what you decide (e.g. `/memory-init` creates `.orquestador/memory/` with a
+- what you decide (e.g. `/memory-init` creates `.orchestrator/memory/` with a
   `.gitignore` that self-ignores it), and
 - worktrees, if you use them (`worktree.directory` is relative to the project).
 
@@ -323,7 +324,7 @@ The repo (or a zip of it) is self-contained and **carries no secrets**:
 Steps for another person:
 
 1. Have **OpenCode V2** and **Node** (for the local MCPs and the scripts).
-2. Copy/clone the `ORQUESTADOR/` folder.
+2. Copy/clone the `ORCHESTRATOR/` folder.
 3. Run the installer (it adapts absolute paths to *their* `$env:USERPROFILE`):
 
    ```powershell
@@ -340,13 +341,13 @@ Coexistence notes:
 - If the other person **already had** a global `AGENTS.md`, the installer **does
   not overwrite it**: they must merge the lines from `global/AGENTS.md` by hand.
 - Re-running the installer **updates** agents/commands/skills/plugins and
-  `models.json`, but **preserves** your rules (`orquestador/rules.md`) and your
+  `models.json`, but **preserves** your rules (`orchestrator/rules.md`) and your
   global `AGENTS.md`. To "update", just run it again after a `pull`.
 - The installer is **PowerShell (Windows)**. On macOS/Linux you have to replicate
   the same steps (copy to `~/.config/opencode/` and adjust `MEMORY_FILE_PATH`);
   treat that port as a pending `install.sh`.
 - To customize: add your rules to
-  `~/.config/opencode/orquestador/rules.md`, your own chains to
+  `~/.config/opencode/orchestrator/rules.md`, your own chains to
   `models.json`, and your cross-project facts to the MCP memory.
 
 ## 13. Possible next steps

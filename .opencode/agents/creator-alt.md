@@ -22,4 +22,4 @@ modelo para dar diversidad de implementación.
 - Se quiere una **segunda versión** de una parte crítica para comparar.
 
 Sigue el mismo protocolo y el mismo formato de handoff que el `creator`. Lee
-`.orquestador/memory/` antes de abrir archivos y actualízalo al terminar.
+`.orchestrator/memory/` antes de abrir archivos y actualízalo al terminar.

@@ -17,7 +17,7 @@ import { homedir } from "node:os"
 import path from "node:path"
 
 const STORE =
-  process.env.ORQUESTADOR_STORE || path.join(homedir(), ".config", "opencode", "orquestador")
+  process.env.ORCHESTRATOR_STORE || path.join(homedir(), ".config", "opencode", "orchestrator")
 
 async function readJson(file, fallback) {
   try {

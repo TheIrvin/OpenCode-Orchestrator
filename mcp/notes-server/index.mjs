@@ -9,7 +9,7 @@
  * Solo usa módulos nativos de Node. Sin dependencias.
  *
  * Variables de entorno:
- *   NOTES_DIR  Directorio de notas (por defecto: ./.orquestador/memory)
+ *   NOTES_DIR  Directorio de notas (por defecto: ./.orchestrator/memory)
  *
  * Herramientas:
  *   notes_list    → lista los archivos de memoria
@@ -22,7 +22,7 @@ import { createInterface } from "node:readline";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-const NOTES_DIR = path.resolve(process.env.NOTES_DIR || path.join(process.cwd(), ".orquestador", "memory"));
+const NOTES_DIR = path.resolve(process.env.NOTES_DIR || path.join(process.cwd(), ".orchestrator", "memory"));
 const ALLOWED_EXT = new Set([".md", ".jsonl", ".txt"]);
 const MAX_RESULTS = 50;
 

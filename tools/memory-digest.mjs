@@ -15,9 +15,9 @@ import { homedir } from "node:os"
 import path from "node:path"
 
 const project = process.argv[2] || process.cwd()
-const memDir = path.join(project, ".orquestador", "memory")
+const memDir = path.join(project, ".orchestrator", "memory")
 const store =
-  process.env.ORQUESTADOR_STORE || path.join(homedir(), ".config", "opencode", "orquestador")
+  process.env.ORCHESTRATOR_STORE || path.join(homedir(), ".config", "opencode", "orchestrator")
 const jsonl = path.join(store, "errors.jsonl")
 
 async function localMemory() {

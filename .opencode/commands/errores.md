@@ -6,7 +6,7 @@ subagent: false
 ---
 
 Revisa la memoria **global** de errores y conviértela en reglas accionables.
-Todo vive en `~/.config/opencode/orquestador/` (nunca dentro de un proyecto):
+Todo vive en `~/.config/opencode/orchestrator/` (nunca dentro de un proyecto):
 
 1. Lee `errors.jsonl` (registro crudo) y `auto.md` (digest de recurrentes).
 2. Agrupa por `signature` y detecta los que más se repiten.

@@ -9,4 +9,4 @@ Implementa lo siguiente con el mínimo cambio que cumpla el criterio de
 aceptación: $ARGUMENTS
 
 Lee la memoria antes de abrir archivos, ejecuta la verificación tú mismo y
-actualiza `.orquestador/memory/files.md` al terminar.
+actualiza `.orchestrator/memory/files.md` al terminar.

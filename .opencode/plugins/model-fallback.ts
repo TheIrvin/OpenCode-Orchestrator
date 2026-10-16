@@ -14,11 +14,11 @@
  *   1. Si el fallo indica que el modelo/proveedor no está disponible, marca ese
  *      modelo en "cooldown" (con caducidad).
  *   2. Elige el siguiente modelo de la CADENA del rol (event.agent) en
- *      `orquestador/models.json`, prefiriendo una FAMILIA distinta a la que
+ *      `orchestrator/models.json`, prefiriendo una FAMILIA distinta a la que
  *      falló (una cuota suele agotarse por familia, p. ej. los NVIDIA).
  *   3. Cambia el modelo de la sesión y deja que OpenCode reintente.
  *
- * Todo se guarda en el almacén global (~/.config/opencode/orquestador/), nunca
+ * Todo se guarda en el almacén global (~/.config/opencode/orchestrator/), nunca
  * dentro del proyecto. Nunca lanza: si algo falla, la sesión sigue como estaba.
  *
  * Nota: `switchModel` aplica al siguiente dispatch. Si el reintento inmediato
@@ -31,7 +31,7 @@ import { homedir } from "node:os"
 import path from "node:path"
 
 const STORE =
-  process.env.ORQUESTADOR_STORE || path.join(homedir(), ".config", "opencode", "orquestador")
+  process.env.ORCHESTRATOR_STORE || path.join(homedir(), ".config", "opencode", "orchestrator")
 const MANIFEST = path.join(STORE, "models.json")
 const COOLDOWN = path.join(STORE, "model-cooldown.json")
 const COOLDOWN_MD = path.join(STORE, "model-cooldown.md")
@@ -133,7 +133,7 @@ async function writeCooldownMd(map: Record<string, any>): Promise<void> {
 }
 
 export default {
-  id: "orquestador.model-fallback",
+  id: "orchestrator.model-fallback",
 
   async setup(ctx: any) {
     if (typeof ctx?.session?.hook !== "function") return

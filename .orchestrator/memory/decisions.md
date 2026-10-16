@@ -9,7 +9,7 @@ Format: date · decision · reason · discarded alternatives.
   matches the size of the problem · a single planner was discarded.
 - 2026-10-16 · Critic with `muse-spark` (a different family) · avoid the bias
   shared with the creator (`deepseek`/`glm`).
-- 2026-10-16 · Two-layer memory · `.orquestador/memory/` for the repo and MCP
+- 2026-10-16 · Two-layer memory · `.orchestrator/memory/` for the repo and MCP
   `memory` for cross-project facts.
 - 2026-10-16 · Language policy · documentation (README + project memory) in
   English for sharing; agents, commands, skills, plugins, tools, rules and code

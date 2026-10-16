@@ -9,7 +9,7 @@ description: Cómo repartir trabajo entre subagentes en paralelo de forma segura
 
 Cada subagente corre en su **propia sesión hija con contexto fresco**
 (foreground o background). El padre no ve sus pasos internos, solo el resultado.
-Esto es lo que mantiene el hilo del orquestador limpio.
+Esto es lo que mantiene el hilo del orchestrator limpio.
 
 ## Patrón básico
 

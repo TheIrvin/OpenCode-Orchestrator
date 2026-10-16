@@ -2,7 +2,7 @@
  * error-memory — persistencia de errores SIN dejar archivos en el proyecto.
  *
  * Escribe TODO en un almacén global (
- *   ~/.config/opencode/orquestador/ ), nunca dentro del repositorio del usuario:
+ *   ~/.config/opencode/orchestrator/ ), nunca dentro del repositorio del usuario:
  *
  *   errors.jsonl  → registro completo (append-only, con el proyecto de origen)
  *   auto.md       → digest de errores recurrentes (≤15 líneas), cargado por
@@ -31,7 +31,7 @@ import { homedir } from "node:os"
 import path from "node:path"
 
 const STORE =
-  process.env.ORQUESTADOR_STORE || path.join(homedir(), ".config", "opencode", "orquestador")
+  process.env.ORCHESTRATOR_STORE || path.join(homedir(), ".config", "opencode", "orchestrator")
 const JSONL = path.join(STORE, "errors.jsonl")
 const AUTO = path.join(STORE, "auto.md")
 const MAX_AUTO = 15
@@ -168,7 +168,7 @@ async function regenerateAuto(): Promise<void> {
 }
 
 export default {
-  id: "orquestador.error-memory",
+  id: "orchestrator.error-memory",
 
   async setup(ctx: any) {
     if (typeof ctx?.tool?.hook !== "function") return

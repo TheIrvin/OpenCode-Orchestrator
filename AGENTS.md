@@ -1,4 +1,4 @@
-# ORQUESTADOR — instrucciones del proyecto
+# ORCHESTRATOR — instrucciones del proyecto
 
 Este repositorio contiene una configuración de orquestación multi-agente para
 OpenCode. Todo el trabajo pesado debe pasar por el agente **orchestrator**.
@@ -10,17 +10,17 @@ OpenCode. Todo el trabajo pesado debe pasar por el agente **orchestrator**.
 2. **Elegir el tier correcto.** Antes de planificar, carga la skill
    `model-router` y sigue su matriz de decisión para elegir planeador, creador
    y verificador según el tamaño/complejidad del problema.
-2b. **No releer sin necesidad.** Lee primero `.orquestador/memory/INDEX.md` y
+2b. **No releer sin necesidad.** Lee primero `.orchestrator/memory/INDEX.md` y
    compara hashes (`git hash-object`) antes de abrir archivos ya revisados.
    Actualiza la memoria al terminar (skill `context-memory`).
 2c. **No repetir errores.** Las reglas viven en
-   `~/.config/opencode/orquestador/` y se cargan solas en el prompt
+   `~/.config/opencode/orchestrator/` y se cargan solas en el prompt
    (`instructions`): **no las leas otra vez**. Cada fallo se registra solo
    (plugin `error-memory`, fuera del proyecto). Promueve recurrentes a reglas
    con `/errores`.
 2d. **No dejar archivos libres.** El sistema no escribe nada dentro de los
    proyectos trabajados. Si algo debe persistir, va a un directorio global
-   (`~/.config/opencode/orquestador/`) o a un MCP; nunca sueltes archivos en el
+   (`~/.config/opencode/orchestrator/`) o a un MCP; nunca sueltes archivos en el
    repo del usuario.
 3. **Paralelizar lo independiente.** Usa `background: true` en el tool
    `subagent` para lanzar varios hijos a la vez, y Code Mode (`execute`) para
@@ -33,7 +33,7 @@ OpenCode. Todo el trabajo pesado debe pasar por el agente **orchestrator**.
 7. **Modelos gratuitos.** Todos los agentes usan el proveedor `opencode`
    (modelos free, coste 0). No introduzcas modelos de pago sin permiso.
 8. **Rotación de modelos.** Cada rol tiene una cadena de respaldo por familias
-   (`orquestador/models.json`). Si un modelo se agota, el plugin `model-fallback`
+   (`orchestrator/models.json`). Si un modelo se agota, el plugin `model-fallback`
    rota solo; consulta `/modelos`. No insistas con un modelo caído.
 
 ## Documentación

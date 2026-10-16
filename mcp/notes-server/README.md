@@ -1,7 +1,7 @@
 # notes-server (MCP propio de ejemplo)
 
 Servidor MCP local, sin dependencias, que expone la memoria del proyecto
-(`.orquestador/memory/`) como herramientas para los agentes.
+(`.orchestrator/memory/`) como herramientas para los agentes.
 
 ## Herramientas
 
@@ -16,7 +16,7 @@ Servidor MCP local, sin dependencias, que expone la memoria del proyecto
 
 ```sh
 # Windows
-set NOTES_DIR=.orquestador\memory && echo {"jsonrpc":"2.0","id":1,"method":"tools/list"} | node mcp/notes-server/index.mjs
+set NOTES_DIR=.orchestrator\memory && echo {"jsonrpc":"2.0","id":1,"method":"tools/list"} | node mcp/notes-server/index.mjs
 ```
 
 Deberías ver una línea JSON con la lista de herramientas.
@@ -31,7 +31,7 @@ Deberías ver una línea JSON con la lista de herramientas.
         "type": "local",
         "command": ["node", "mcp/notes-server/index.mjs"],
         "cwd": ".",
-        "environment": { "NOTES_DIR": ".orquestador/memory" }
+        "environment": { "NOTES_DIR": ".orchestrator/memory" }
       }
     }
   }

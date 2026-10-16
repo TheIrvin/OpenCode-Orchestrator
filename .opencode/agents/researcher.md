@@ -27,10 +27,10 @@ Devuelve siempre:
 2. **Evidencia**: rutas/URLs concretas de donde sale cada hallazgo.
 3. **Mapa de archivos** (si aplica): ruta → propósito en una línea.
 4. **Lagunas**: lo que no pudiste confirmar.
-5. **Recomendación** para el orquestador.
+5. **Recomendación** para el orchestrator.
 
 ## Memoria
 
-Antes de investigar, revisa `.orquestador/memory/`. Al terminar, **escribe** un
+Antes de investigar, revisa `.orchestrator/memory/`. Al terminar, **escribe** un
 resumen compacto en `map.md` (mapa de archivos) y `files.md` (hash + resumen de
 cada archivo leído) para que nadie tenga que releerlos. No edites código.

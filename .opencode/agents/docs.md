@@ -21,5 +21,5 @@ Eres el **DOCUMENTADOR**. Escribes documentación clara y honesta.
   solución de problemas.
 - Sigue los patrones de la documentación existente.
 
-Consulta `.orquestador/memory/map.md` para no releer todo el código. Al
+Consulta `.orchestrator/memory/map.md` para no releer todo el código. Al
 terminar, anota en `decisions.md` qué documentaste.

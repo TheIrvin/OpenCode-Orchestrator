@@ -16,11 +16,11 @@ yarn-error.log*
 *.swp
 
 # --- Worktrees de OpenCode (paralelismo de escritura) ---
-.orquestador-trees/
+.orchestrator-trees/
 
 # --- Memoria del proyecto: lo volátil no se versiona ---
-.orquestador/memory/*.jsonl
-.orquestador/memory/plugin-*
+.orchestrator/memory/*.jsonl
+.orchestrator/memory/plugin-*
 
 # --- Credenciales / entorno: NUNCA subir ---
 .env

@@ -1,5 +1,5 @@
 # The error memory NO LONGER lives here: it is global and lives in
-# ~/.config/opencode/orquestador/ (never inside projects).
+# ~/.config/opencode/orchestrator/ (never inside projects).
 # Volatile artifacts of the local memory are ignored.
 graph.jsonl
 *.jsonl

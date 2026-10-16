@@ -8,10 +8,10 @@
 | Agents | `.opencode/agents/` | Orchestrator, planners, creators, critic, etc. |
 | Commands | `.opencode/commands/` | Shortcuts `/orq`, `/plan-*`, `/build`, `/review`, … |
 | Skills | `.opencode/skills/` | Model router, memory, parallelism, MCP |
-| Memory | `.orquestador/memory/` | Persistent project context |
-| Errors (global) | `~/.config/opencode/orquestador/` | Rules, digest, and log; outside the repo |
+| Memory | `.orchestrator/memory/` | Persistent project context |
+| Errors (global) | `~/.config/opencode/orchestrator/` | Rules, digest, and log; outside the repo |
 | Error plugin | `.opencode/plugins/error-memory.ts` | Automatic failure capture (writes to the global store) |
-| Model catalog | `orquestador/models.json` | Families + per-role fallback chains |
+| Model catalog | `orchestrator/models.json` | Families + per-role fallback chains |
 | Fallback plugin | `.opencode/plugins/model-fallback.ts` | Rotates model on provider failure |
 | Utilities | `tools/` | `memory-digest.mjs`, `models-status.mjs` (one call each) |
 

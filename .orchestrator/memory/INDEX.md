@@ -7,7 +7,7 @@ repository again.
 - Reviewed files (git hash + summary): `files.md`
 - Decisions and why: `decisions.md`
 - Domain glossary: `glossary.md`
-- Errors and rules: **global**, in `~/.config/opencode/orquestador/`
+- Errors and rules: **global**, in `~/.config/opencode/orchestrator/`
   (`rules.md`, `auto.md`, `errors.jsonl`) — never inside the project
 - Model families and chains (fallback/rotation): `models.json` (same dir)
 - MCP memory graph (cross-project facts): `graph.jsonl`

@@ -97,7 +97,7 @@ Para conectar tu servidor:
         "type": "local",
         "command": ["node", "mcp/notes-server/index.mjs"],
         "cwd": ".",
-        "environment": { "NOTES_DIR": ".orquestador/memory" }
+        "environment": { "NOTES_DIR": ".orchestrator/memory" }
       }
     }
   }

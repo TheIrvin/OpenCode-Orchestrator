@@ -1,13 +1,13 @@
 <#
 .SYNOPSIS
-  Instala el sistema ORQUESTADOR en la configuración global de OpenCode.
+  Instala el sistema ORCHESTRATOR en la configuración global de OpenCode.
 
 .DESCRIPTION
   Copia agentes, comandos, skills y plugins a ~/.config/opencode/ y genera una
   configuración global a partir de opencode.jsonc. Además:
 
     - Ajusta la ruta del archivo de memoria MCP a una ubicación absoluta.
-    - Crea el almacén global de errores (~/.config/opencode/orquestador/) y
+    - Crea el almacén global de errores (~/.config/opencode/orchestrator/) y
       registra sus reglas en `instructions` para que se carguen en el prefijo
       cacheado del prompt (sin gastar tool calls ni razonamiento).
     - Instala el manifiesto de modelos (`models.json`) con familias y cadenas de
@@ -29,10 +29,10 @@ param(
 $ErrorActionPreference = "Stop"
 $Source = $PSScriptRoot
 
-Write-Host "ORQUESTADOR -> $Destination" -ForegroundColor Cyan
+Write-Host "ORCHESTRATOR -> $Destination" -ForegroundColor Cyan
 
 # 1. Directorios
-$store = Join-Path $Destination "orquestador"
+$store = Join-Path $Destination "orchestrator"
 $dirs = @(
   $Destination,
   (Join-Path $Destination "agents"),
@@ -58,10 +58,10 @@ foreach ($sub in @("agents", "commands", "skills", "plugins")) {
 # 3. Almacén global de errores (reglas + digest)
 $rules = Join-Path $store "rules.md"
 if (-not (Test-Path $rules)) {
-  Copy-Item (Join-Path $Source "orquestador\rules.md") $rules
-  Write-Host "  [ok] orquestador\rules.md" -ForegroundColor Green
+  Copy-Item (Join-Path $Source "orchestrator\rules.md") $rules
+  Write-Host "  [ok] orchestrator\rules.md" -ForegroundColor Green
 } else {
-  Write-Host "  [i] orquestador\rules.md ya existe, se conservan tus reglas" -ForegroundColor Yellow
+  Write-Host "  [i] orchestrator\rules.md ya existe, se conservan tus reglas" -ForegroundColor Yellow
 }
 $auto = Join-Path $store "auto.md"
 $jsonl = Join-Path $store "errors.jsonl"
@@ -69,8 +69,8 @@ if (-not (Test-Path $auto))  { [System.IO.File]::WriteAllText($auto,  "<!-- Gene
 if (-not (Test-Path $jsonl)) { [System.IO.File]::WriteAllText($jsonl, "", (New-Object System.Text.UTF8Encoding($false))) }
 
 # 3b. Manifiesto de modelos + cadenas de respaldo (fuente única del fallback)
-Copy-Item (Join-Path $Source "orquestador\models.json") (Join-Path $store "models.json") -Force
-Write-Host "  [ok] orquestador\models.json (familias + cadenas por rol)" -ForegroundColor Green
+Copy-Item (Join-Path $Source "orchestrator\models.json") (Join-Path $store "models.json") -Force
+Write-Host "  [ok] orchestrator\models.json (familias + cadenas por rol)" -ForegroundColor Green
 $cooldown = Join-Path $store "model-cooldown.json"
 if (-not (Test-Path $cooldown)) { [System.IO.File]::WriteAllText($cooldown, "{}`n", (New-Object System.Text.UTF8Encoding($false))) }
 
@@ -85,7 +85,7 @@ $memoryFile = (Join-Path $Destination "memory\graph.jsonl") -replace "\\", "\\"
 $rulesJson = $rules -replace "\\", "\\"
 $autoJson = $auto -replace "\\", "\\"
 $content = Get-Content (Join-Path $Source "opencode.jsonc") -Raw
-$content = $content.Replace(".orquestador/memory/graph.jsonl", $memoryFile)
+$content = $content.Replace(".orchestrator/memory/graph.jsonl", $memoryFile)
 $anchor = '"$schema": "https://opencode.ai/config.json",'
 $instructions = $anchor + "`n  `"instructions`": [`"$rulesJson`", `"$autoJson`"],"
 if ($content.Contains($anchor)) {
