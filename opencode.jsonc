@@ -1,0 +1,96 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Modelo por defecto de la sesión. Beam es el mejor "generalista fuerte"
+  // gratuito (1M de contexto + variantes hasta `max`). El orquestador y los
+  // subagentes eligen su propia variante/razonamiento en su definición.
+  "model": "opencode/beam-free",
+
+  // Al abrir la app, se arranca en el director del flujo.
+  "default_agent": "orchestrator",
+
+  // ---------------------------------------------------------------------------
+  // Permisos (reglas ordenadas: gana la última coincidencia).
+  // Base cómoda para automatización, con frenos en acciones destructivas.
+  // ---------------------------------------------------------------------------
+  "permissions": [
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "git reset --hard *", "effect": "ask" },
+    { "action": "shell", "resource": "git clean *", "effect": "ask" },
+    { "action": "shell", "resource": "rm -rf *", "effect": "ask" },
+    { "action": "shell", "resource": "Remove-Item * -Recurse *", "effect": "ask" },
+    { "action": "external_directory", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "ask" },
+    { "action": "read", "resource": "*.env.*", "effect": "ask" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" }
+  ],
+
+  // ---------------------------------------------------------------------------
+  // Ajustes finos de agentes integrados (merge por clave: solo cambia el modelo).
+  // ---------------------------------------------------------------------------
+  "agents": {
+    "build": { "model": "opencode/deepseek-v4.1-flash-free#high" },
+    "general": { "model": "opencode/beam-free#high" },
+    "explore": { "model": "opencode/nemotron-3.5-lightning-free" },
+    "plan": { "model": "opencode/space-bunny-free#high" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Compactación: preserva más detalle reciente (los modelos free tienen
+  // presupuestos de contexto variados; DeepSeek/GLM/MiMo son de 200k).
+  // ---------------------------------------------------------------------------
+  "compaction": {
+    "auto": true,
+    "keep": { "tokens": 24000 },
+    "buffer": 20000
+  },
+
+  // ---------------------------------------------------------------------------
+  // Servidores MCP. Context7 (documentación de librerías, remoto/OAuth).
+  // Añade más con:  opencode mcp add <nombre> --global --url <url>
+  // Los locales se exponen por Code Mode (tools.<servidor>.<tool>).
+  // ---------------------------------------------------------------------------
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp"
+      },
+      // Memoria persistente (grafo de conocimiento, JSONL). Sobrevive entre
+      // sesiones y la comparten todos los agentes. En Windows hay que lanzar
+      // npx con "cmd /c" porque npx.ps1 está bloqueado por la política.
+      "memory": {
+        "type": "local",
+        "command": ["cmd", "/c", "npx", "-y", "@modelcontextprotocol/server-memory"],
+        "cwd": ".",
+        "environment": {
+          "MEMORY_FILE_PATH": ".orquestador/memory/graph.jsonl"
+        }
+      }
+      // Ejemplos listos para descomentar:
+      // "sequential": {
+      //   "type": "local",
+      //   "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
+      // },
+      // "playwright": {
+      //   "type": "local",
+      //   "command": ["npx", "-y", "@playwright/mcp@latest"]
+      // },
+      // "github": {
+      //   "type": "remote",
+      //   "url": "https://api.githubcopilot.com/mcp/"
+      // }
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // Warming: mantiene la caché del proveedor caliente entre prompts.
+  // Desactivado por defecto (consume peticiones aunque sean gratis).
+  // Descomenta para activarlo:
+  // ---------------------------------------------------------------------------
+  // "warming": { "interval": "4 minutes", "duration": "30 minutes" },
+
+  // Worktrees locales (ejecución aislada en paralelo):
+  "worktree": { "directory": "../.orquestador-trees" }
+}

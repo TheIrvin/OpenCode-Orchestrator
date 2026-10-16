@@ -1,0 +1,123 @@
+{
+  "$comment": "Catálogo de modelos gratuitos + familias + cadenas de respaldo por rol. Fuente única para el plugin model-fallback y /modelos.",
+  "provider": "opencode",
+  "cooldownSeconds": 300,
+  "families": {
+    "nvidia": [
+      "nemotron-3.5-super-vl-free",
+      "nemotron-3.5-lightning-free",
+      "nemotron-3-ultra-free"
+    ],
+    "deepseek": ["deepseek-v4.1-flash-free"],
+    "zhipu": ["glm-5.3-flash-free"],
+    "xiaomi": ["mimo-v2.6-flash-free"],
+    "meituan": ["longcat-2.5-preview-free"],
+    "beam": ["beam-free"],
+    "spacebunny": ["space-bunny-free"],
+    "muse": ["muse-spark-1.3-contributor-free"],
+    "bigpickle": ["big-pickle"]
+  },
+  "roles": {
+    "orchestrator": [
+      "beam-free#xhigh",
+      "space-bunny-free#high",
+      "muse-spark-1.3-contributor-free#high",
+      "longcat-2.5-preview-free",
+      "nemotron-3-ultra-free"
+    ],
+    "build": [
+      "deepseek-v4.1-flash-free#high",
+      "glm-5.3-flash-free#high",
+      "space-bunny-free#high",
+      "mimo-v2.6-flash-free",
+      "longcat-2.5-preview-free",
+      "nemotron-3-ultra-free"
+    ],
+    "creator": [
+      "deepseek-v4.1-flash-free#high",
+      "glm-5.3-flash-free#high",
+      "space-bunny-free#high",
+      "mimo-v2.6-flash-free",
+      "longcat-2.5-preview-free",
+      "nemotron-3-ultra-free"
+    ],
+    "creator-alt": [
+      "glm-5.3-flash-free#high",
+      "deepseek-v4.1-flash-free#high",
+      "mimo-v2.6-flash-free",
+      "space-bunny-free#high",
+      "longcat-2.5-preview-free"
+    ],
+    "critic": [
+      "muse-spark-1.3-contributor-free#high",
+      "space-bunny-free#high",
+      "longcat-2.5-preview-free",
+      "glm-5.3-flash-free#high",
+      "deepseek-v4.1-flash-free#high"
+    ],
+    "planner-fast": [
+      "big-pickle",
+      "nemotron-3.5-lightning-free",
+      "deepseek-v4.1-flash-free#low",
+      "mimo-v2.6-flash-free"
+    ],
+    "planner": [
+      "space-bunny-free#high",
+      "muse-spark-1.3-contributor-free#high",
+      "glm-5.3-flash-free#high",
+      "longcat-2.5-preview-free",
+      "nemotron-3-ultra-free"
+    ],
+    "plan": [
+      "space-bunny-free#high",
+      "muse-spark-1.3-contributor-free#high",
+      "glm-5.3-flash-free#high",
+      "longcat-2.5-preview-free",
+      "nemotron-3-ultra-free"
+    ],
+    "planner-deep": [
+      "space-bunny-free#max",
+      "muse-spark-1.3-contributor-free#xhigh",
+      "glm-5.3-flash-free#max",
+      "nemotron-3-ultra-free",
+      "longcat-2.5-preview-free"
+    ],
+    "planner-long": [
+      "nemotron-3-ultra-free",
+      "longcat-2.5-preview-free",
+      "space-bunny-free#xhigh",
+      "muse-spark-1.3-contributor-free#high",
+      "glm-5.3-flash-free#high"
+    ],
+    "explore": [
+      "nemotron-3.5-lightning-free",
+      "big-pickle",
+      "mimo-v2.6-flash-free",
+      "deepseek-v4.1-flash-free#low"
+    ],
+    "researcher": [
+      "longcat-2.5-preview-free",
+      "muse-spark-1.3-contributor-free#high",
+      "space-bunny-free#high",
+      "nemotron-3-ultra-free"
+    ],
+    "vision": [
+      "nemotron-3.5-super-vl-free#high",
+      "muse-spark-1.3-contributor-free#high",
+      "mimo-v2.6-flash-free",
+      "glm-5.3-flash-free#high"
+    ],
+    "docs": [
+      "muse-spark-1.3-contributor-free#medium",
+      "longcat-2.5-preview-free",
+      "space-bunny-free#medium",
+      "glm-5.3-flash-free#high"
+    ],
+    "general": [
+      "beam-free#high",
+      "space-bunny-free#high",
+      "muse-spark-1.3-contributor-free#high",
+      "longcat-2.5-preview-free"
+    ]
+  }
+}
