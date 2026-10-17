@@ -33,6 +33,7 @@ el modelo de un hijo a mitad de vuelo: elige el hijo adecuado desde el inicio.
 | Necesidad | Subagente | Modelo resultante |
 | --- | --- | --- |
 | Coordinar, decidir, consolidar | `orchestrator` | `beam-free#high` |
+| Trabajo autónomo sin confirmación (`/goal`) | `goal` | `beam-free#high` |
 | Plan pequeño (1–2 archivos) | `planner-fast` | `big-pickle` |
 | Plan medio (un módulo) | `planner` | `space-bunny-free#high` |
 | Plan complejo (tradeoffs, riesgo) | `planner-deep` | `space-bunny-free#max` |
@@ -55,6 +56,7 @@ ordenada** que salta a otra familia. Fuente única:
 | Rol | 1.º (preferido) | 2.º | 3.º | 4.º |
 | --- | --- | --- | --- | --- |
 | `orchestrator` | `beam-free#high` | `space-bunny-free#high` | `glm-5.3#high` | `longcat-2.5` |
+| `goal` | `beam-free#high` | `space-bunny-free#high` | `deepseek-v4.1#high` | `glm-5.3#high` |
 | `creator` | `deepseek-v4.1#high` | `glm-5.3#high` | `space-bunny#high` | `mimo-v2.6` |
 | `creator-alt` | `glm-5.3#high` | `deepseek-v4.1#high` | `mimo-v2.6` | `space-bunny#high` |
 | `critic` | `space-bunny#high` | `beam-free#high` | `longcat-2.5` | `glm-5.3#high` |

@@ -113,7 +113,7 @@ Write-Host "  [ok] AGENTS.md (global, corto por diseno)" -ForegroundColor Green
 Write-Host ""
 Write-Host "Listo. En OpenCode:" -ForegroundColor Cyan
 Write-Host "  - Agente primario por defecto: orchestrator"
-Write-Host "  - Comandos: /orq /ask /plan-quick /plan-deep /plan-long /build /review /research /catalogo /memory-init /errores /modelos"
+Write-Host "  - Comandos: /orq /ask /plan-quick /plan-deep /plan-long /build /review /research /catalogo /memory-init /errores /modelos /goal /goal-status /goal-stop /goal-resume"
 Write-Host "  - Los errores se registran en $store (nunca dentro de tus proyectos)"
 Write-Host "  - Las reglas se cargan solas en el prompt; no hace falta leerlas"
 Write-Host "  - Si un modelo se agota, el plugin model-fallback rota a la siguiente familia"

@@ -55,6 +55,7 @@ All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
 | --- | --- | --- | --- |
 | `orchestrator` | primary | beam-free#high | Flow direction |
 | `ask` | primary | big-pickle | Light Q&A, no orchestration |
+| `goal` | primary | beam-free#high | Autonomous loop (`/goal`), no confirmations |
 | `planner-fast` | subagent | big-pickle | Plan for small tasks |
 | `planner` | all | space-bunny-free#high | Module plan |
 | `planner-deep` | subagent | space-bunny-free#max | Complex plan with tradeoffs |
@@ -70,7 +71,10 @@ All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
 Permissions: **only the agent that edits can edit** — `planner*`, `critic`,
 `researcher` and `vision` are read-only; `vision` also denies `shell` and `docs`
 has no `shell`. **No worker can spawn subagents** (`subagent: deny`); only
-`orchestrator` delegates. Denied tools also drop out of the prompt.
+`orchestrator` and `goal` delegate. Denied tools also drop out of the prompt.
+The `goal` agent auto-allows normal work (no permission prompts) but hard-denies
+the irreversible operations (`rm -rf`, `git reset --hard`, `git clean`, force
+push, `.env` reads).
 
 ---
 
@@ -297,10 +301,57 @@ Then, in OpenCode:
 | `/memory-init` | Create the project memory |
 | `/errores` | Turn logged errors into rules |
 | `/modelos` | See families, cooldowns, and per-role fallback |
+| `/goal <objective>` | Autonomous loop: iterate with no confirmation until done |
+| `/goal-status` `/goal-stop` `/goal-resume` | Inspect, stop, or resume the active goal |
 
 You can also just talk normally: the orchestrator decides on its own. For a
 quick question that needs no orchestration, switch to the **`ask`** agent or use
 `/ask`.
+
+### 8.1 Goal mode (autonomous loop, Codex-style)
+
+`/goal` declares an objective and the agent keeps iterating **without waiting
+for your confirmation**: it plans, executes, verifies with real evidence, and
+repeats until the acceptance criterion is met.
+
+```text
+/goal add tests for src/utils and make them pass --max=25
+```
+
+How it works (and why it is safe):
+
+- The `goal-loop` plugin subscribes to the server event stream and, when a turn
+  finishes (`session.execution.succeeded`), it **injects the next continuation
+  prompt** — that is what keeps it from idling back to you.
+- The agent ends the loop by writing `GOAL_COMPLETE` as the **last line** of its
+  final message (or `GOAL_BLOCKED: <reason>`). The plugin looks for the marker at
+  the end of the text, so merely mentioning the word does not end the goal.
+- **Any message you send pauses the goal** (it never restarts on its own);
+  resume with `/goal-resume`. A failed/interrupted execution also pauses it.
+- **Continuation cap** to avoid the endless "Ralph" loop that Codex users report:
+  40 by default, configurable with `--max=N` (`--max=0` runs a single pass; hard
+  ceiling 500). A watchdog also pauses the goal if a turn never ends (15 min).
+- When the goal ends, the session **returns to the agent it was using before**.
+- Reissuing `/goal` while a turn is in flight merges both objectives into that
+  turn (they are delivered as a `steer`), so a `GOAL_COMPLETE` from the old
+  objective can close the new one. For a clean break, `/goal-stop` first and let
+  it settle.
+- The event stream is global and the plugin runs once per location, so it only
+  acts on the session's own project — several projects open at once do not
+  interfere (an instance-liveness check, kept in `globalThis`, also survives
+  config hot-reloads).
+- The `goal` agent runs on the same free models as the rest and can delegate to
+  subagents (planners, `creator`, `critic`) to keep its own context small.
+- The agent never asks (the `question` tool is denied), and its permissions
+  auto-approve the usual tools — including `git push` — so the loop never stops
+  waiting for you. The irreversible ops stay hard-denied.
+- `.env` files (and variants) are **denied** for `read`/`edit`/`glob`, plus a
+  best-effort shell guard. Be aware of the limits: `grep` is filtered by *pattern*
+  (not by the path searched) and the shell stays open, so those routes rely on the
+  agent's instruction. `.env.example`/`.env.sample` stay readable.
+
+Because it approves its own work, `/goal` is for well-scoped objectives; review
+the result when it finishes.
 
 ---
 
@@ -313,19 +364,23 @@ ORCHESTRATOR/
 ├── install.ps1               # global install
 ├── global/AGENTS.md          # global instructions
 ├── .opencode/
-│   ├── agents/               # 12 agents
-│   ├── commands/             # 12 commands
+│   ├── agents/               # 13 agents
+│   ├── commands/             # 12 commands (+4 goal* from the plugin)
 │   ├── skills/               # model-router, context-memory, parallel-dispatch, mcp-builder
-│   └── plugins/              # error-memory (errors) + model-fallback (rotation)
+│   └── plugins/              # error-memory + model-fallback + goal-loop
 ├── orchestrator/             # rules.md (rules) + models.json (families and chains)
 ├── .orchestrator/memory/      # project memory (INDEX, map, files, decisions, glossary)
 ├── tools/                    # memory-digest.mjs, models-status.mjs (one call each)
+├── tests/                    # goal-loop.test.mjs (plugin unit tests)
 └── mcp/notes-server/         # own example MCP (no dependencies)
 ```
 
 On install (global) it also creates the store
 `~/.config/opencode/orchestrator/` (`rules.md`, `auto.md`, `errors.jsonl`,
 `models.json`, `model-cooldown.json`), which **does not live inside any project**.
+
+Run `node tests/goal-loop.test.mjs` to exercise the `goal-loop` plugin (67 checks,
+no dependencies — it loads the `.ts` with Node's type stripping).
 
 ---
 
@@ -427,6 +482,9 @@ write-up: [`docs/research.md`](docs/research.md).
 - **State in files, not in the chat** (`.orchestrator/memory/`), so agents share
   facts without inflating the conversation.
 - **Different model families for make vs. verify** (`creator` vs. `critic`).
+- **Autonomy is opt-in and bounded.** `/goal` iterates without confirmations, but
+  only inside a capped loop, pauses on any human message, and hard-denies the
+  irreversible operations.
 
 What we deliberately do **not** copy (tmux panes, extra budget-guard plugins,
 large agent rosters) is listed at the end of [`docs/research.md`](docs/research.md).

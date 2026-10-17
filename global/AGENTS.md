@@ -6,7 +6,7 @@ Taller de agentes sobre OpenCode. El trabajo pesado pasa por el agente
 ## Reglas
 
 - **Delega antes que ejecutar.** Las tareas largas se descomponen; solo el
-  `orchestrator` puede lanzar subagentes.
+  `orchestrator` (y el modo `goal`) pueden lanzar subagentes.
 - **Elige el tier** con la skill `model-router`; no re-leas lo ya visto (skill
   `context-memory`).
 - **Paraleliza lo independiente** (`background: true`), serializa lo dependiente.

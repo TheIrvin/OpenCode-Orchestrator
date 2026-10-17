@@ -24,6 +24,13 @@
       "longcat-2.5-preview-free",
       "nemotron-3-ultra-free"
     ],
+    "goal": [
+      "beam-free#high",
+      "space-bunny-free#high",
+      "deepseek-v4.1-flash-free#high",
+      "glm-5.3-flash-free#high",
+      "longcat-2.5-preview-free"
+    ],
     "build": [
       "deepseek-v4.1-flash-free#high",
       "glm-5.3-flash-free#high",
