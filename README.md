@@ -36,7 +36,7 @@ All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
 
 ```text
                         ┌───────────────────────────────┐
-                        │        ORCHESTRATOR           │  beam-free #xhigh
+                        │        ORCHESTRATOR           │  beam-free #high
                         │  classifies · splits · closes │
                         └───────────────┬───────────────┘
           ┌───────────────┬─────────────┼─────────────┬───────────────┐
@@ -53,7 +53,8 @@ All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
 
 | Agent | Mode | Model | Function |
 | --- | --- | --- | --- |
-| `orchestrator` | primary | beam-free#xhigh | Flow direction |
+| `orchestrator` | primary | beam-free#high | Flow direction |
+| `ask` | primary | big-pickle | Light Q&A, no orchestration |
 | `planner-fast` | subagent | big-pickle | Plan for small tasks |
 | `planner` | all | space-bunny-free#high | Module plan |
 | `planner-deep` | subagent | space-bunny-free#max | Complex plan with tradeoffs |
@@ -241,6 +242,7 @@ Then, in OpenCode:
 | Command | What it does |
 | --- | --- |
 | `/orq <task>` | Full flow (classify → plan → execute → verify) |
+| `/ask <question>` | Quick answer with the light agent (no orchestration) |
 | `/plan-quick` `/plan-deep` `/plan-long` | Force a planner tier |
 | `/build <task>` | Implement with the main creator |
 | `/review` | Independent critical review |
@@ -250,7 +252,9 @@ Then, in OpenCode:
 | `/errores` | Turn logged errors into rules |
 | `/modelos` | See families, cooldowns, and per-role fallback |
 
-You can also just talk normally: the orchestrator decides on its own.
+You can also just talk normally: the orchestrator decides on its own. For a
+quick question that needs no orchestration, switch to the **`ask`** agent or use
+`/ask`.
 
 ---
 
@@ -263,8 +267,8 @@ ORCHESTRATOR/
 ├── install.ps1               # global install
 ├── global/AGENTS.md          # global instructions
 ├── .opencode/
-│   ├── agents/               # 11 agents
-│   ├── commands/             # 11 commands
+│   ├── agents/               # 12 agents
+│   ├── commands/             # 12 commands
 │   ├── skills/               # model-router, context-memory, parallel-dispatch, mcp-builder
 │   └── plugins/              # error-memory (errors) + model-fallback (rotation)
 ├── orchestrator/             # rules.md (rules) + models.json (families and chains)

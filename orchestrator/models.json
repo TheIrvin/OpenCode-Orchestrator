@@ -19,7 +19,7 @@
   },
   "roles": {
     "orchestrator": [
-      "beam-free#xhigh",
+      "beam-free#high",
       "space-bunny-free#high",
       "muse-spark-1.3-contributor-free#high",
       "longcat-2.5-preview-free",

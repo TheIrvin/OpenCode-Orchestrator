@@ -1,7 +1,7 @@
 ---
 description: Arranca el flujo completo de orquestación para una tarea
 agent: orchestrator
-model: opencode/beam-free#xhigh
+model: opencode/beam-free#high
 subagent: false
 ---
 

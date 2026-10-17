@@ -1,45 +1,33 @@
 # ORCHESTRATOR — instrucciones del proyecto
 
-Este repositorio contiene una configuración de orquestación multi-agente para
-OpenCode. Todo el trabajo pesado debe pasar por el agente **orchestrator**.
+Configuración de orquestación multi-agente para OpenCode. Todo el trabajo
+pesado pasa por el agente **orchestrator**.
 
 ## Reglas del proyecto
 
-1. **Delegar antes que ejecutar.** El agente primario no resuelve tareas largas
-   por sí mismo: descompone y lanza subagentes.
-2. **Elegir el tier correcto.** Antes de planificar, carga la skill
-   `model-router` y sigue su matriz de decisión para elegir planeador, creador
-   y verificador según el tamaño/complejidad del problema.
-2b. **No releer sin necesidad.** Lee primero `.orchestrator/memory/INDEX.md` y
-   compara hashes (`git hash-object`) antes de abrir archivos ya revisados.
-   Actualiza la memoria al terminar (skill `context-memory`).
-2c. **No repetir errores.** Las reglas viven en
-   `~/.config/opencode/orchestrator/` y se cargan solas en el prompt
-   (`instructions`): **no las leas otra vez**. Cada fallo se registra solo
-   (plugin `error-memory`, fuera del proyecto). Promueve recurrentes a reglas
-   con `/errores`.
-2d. **No dejar archivos libres.** El sistema no escribe nada dentro de los
-   proyectos trabajados. Si algo debe persistir, va a un directorio global
-   (`~/.config/opencode/orchestrator/`) o a un MCP; nunca sueltes archivos en el
-   repo del usuario.
-3. **Paralelizar lo independiente.** Usa `background: true` en el tool
-   `subagent` para lanzar varios hijos a la vez, y Code Mode (`execute`) para
-   llamadas de herramientas independientes.
-4. **Verificar siempre.** Ninguna tarea se declara terminada sin pasar por el
-   subagente `critic` (modelo de familia distinta al creador).
-5. **No leer `.env`** salvo autorización explícita.
-6. **Convención de traspaso (handoff)** entre agentes: Objetivo · Contexto ·
-   Archivos · Criterios de aceptación · Formato de salida.
-7. **Modelos gratuitos.** Todos los agentes usan el proveedor `opencode`
-   (modelos free, coste 0). No introduzcas modelos de pago sin permiso.
-8. **Rotación de modelos.** Cada rol tiene una cadena de respaldo por familias
-   (`orchestrator/models.json`). Si un modelo se agota, el plugin `model-fallback`
-   rota solo; consulta `/modelos`. No insistas con un modelo caído.
+1. **Delegar antes que ejecutar.** El primario no resuelve tareas largas solo:
+   descompone y lanza subagentes.
+2. **Elegir el tier.** Antes de planificar, carga la skill `model-router` y sigue
+   su matriz (planeador/creador/verificador según tamaño y complejidad).
+3. **No releer.** Mira `.orchestrator/memory/INDEX.md` y compara hashes
+   (`git hash-object`) antes de abrir archivos ya vistos; actualiza la memoria al
+   terminar (skill `context-memory`).
+4. **No repetir errores.** Las reglas (`~/.config/opencode/orchestrator/`) ya se
+   cargan en el prompt (`instructions`): no las releas. Promueve recurrentes con
+   `/errores`.
+5. **No dejar archivos sueltos.** Nada se escribe dentro del proyecto; lo
+   persistente va a `~/.config/opencode/orchestrator/` o a un MCP.
+6. **Paralelizar lo independiente.** `background: true` en `subagent`; Code Mode
+   (`execute`) para llamadas simultáneas.
+7. **Verificar siempre.** Nada se cierra sin el subagente `critic` (familia
+   distinta al creador).
+8. **No leer `.env`** sin autorización explícita.
+9. **Handoff:** Objetivo · Contexto · Archivos · Criterios · Formato de salida.
+10. **Modelos gratuitos** (`opencode`, coste 0): no usar de pago sin permiso.
+11. **Rotación de modelos:** cadena por familia en `orchestrator/models.json`; si
+    uno se agota, `model-fallback` rota solo (`/modelos`).
 
 ## Documentación
 
-- Plan y arquitectura: `README.md`
-- Matriz de modelos y cambio automático: `.opencode/skills/model-router/SKILL.md`
-- Contexto, memoria y anti-relectura: `.opencode/skills/context-memory/SKILL.md`
-- Paralelismo y worktrees: `.opencode/skills/parallel-dispatch/SKILL.md`
-- MCP (usar y crear): `.opencode/skills/mcp-builder/SKILL.md`
+- Arquitectura y uso: `README.md`
+- Skills (on-demand): `model-router`, `context-memory`, `parallel-dispatch`, `mcp-builder`
