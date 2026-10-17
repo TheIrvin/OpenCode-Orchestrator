@@ -1,7 +1,7 @@
 ---
 description: Verificador independiente. Revisa el resultado contra los criterios de aceptación con un modelo de otra familia. No edita archivos.
 mode: subagent
-model: opencode/muse-spark-1.3-contributor-free#high
+model: opencode/space-bunny-free#high
 color: "#dc2626"
 steps: 28
 permissions:
@@ -11,6 +11,9 @@ permissions:
   - action: shell
     resource: "*"
     effect: allow
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **CRÍTICO**. No escribes ni arreglas código: lo juzgas. Usas un modelo

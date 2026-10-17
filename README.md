@@ -61,11 +61,16 @@ All from the `opencode` provider, cost **0**. `#variant` = reasoning effort.
 | `planner-long` | subagent | nemotron-3-ultra-free | Extensive phased plan |
 | `creator` | subagent | deepseek-v4.1-flash-free#high | Implementation |
 | `creator-alt` | subagent | glm-5.3-flash-free#high | Alternate/parallel implementation |
-| `critic` | subagent | muse-spark-1.3-contributor-free#high | Independent verification |
+| `critic` | subagent | space-bunny-free#high | Independent verification |
 | `researcher` | subagent | longcat-2.5-preview-free | Research + synthesis |
 | `vision` | subagent | nemotron-3.5-super-vl-free#high | Images/PDF/audio |
-| `docs` | subagent | muse-spark-1.3-contributor-free#medium | Documentation |
+| `docs` | subagent | beam-free#medium | Documentation |
 | `explore` (built-in) | subagent | nemotron-3.5-lightning-free | Fast search |
+
+Permissions: **only the agent that edits can edit** — `planner*`, `critic`,
+`researcher` and `vision` are read-only; `vision` also denies `shell` and `docs`
+has no `shell`. **No worker can spawn subagents** (`subagent: deny`); only
+`orchestrator` delegates. Denied tools also drop out of the prompt.
 
 ---
 
@@ -136,7 +141,7 @@ files wastes time. Solution in **layers**:
 | Persistent sessions | Resume instead of redoing |
 | Prompt cache + `warming` | Stable prefix; enable `warming` if you pause a lot |
 | Skills on demand | They don't inflate the prompt until used |
-| `AGENTS.md` / instructions | Stable and cheap prefix |
+| `AGENTS.md` + `rules.md` (`instructions`) | Stable, cheap, cached prefix |
 | References | External directories with cache (24h refresh) |
 | Snapshots | File + conversation undo (`/undo`) |
 
@@ -168,7 +173,7 @@ stores it **outside the repository**, in a global store:
 ```text
 ~/.config/opencode/orchestrator/
 ├── rules.md      # curated rules · loaded as `instructions` (cached prompt)
-├── auto.md       # digest of recurring errors · also in `instructions`
+├── auto.md       # digest of recurring errors · read ON DEMAND, not always-on
 └── errors.jsonl  # raw log (append-only, with the project of origin)
 ```
 
@@ -185,7 +190,7 @@ From cheapest to most expensive; always use the cheapest that works:
 
 | Cost | Mechanism | Use |
 | --- | --- | --- |
-| **0** | `rules.md`/`auto.md` via `instructions` | Already in the prompt (cached): they are **not "read"** |
+| **0** | `rules.md` via `instructions` | Already in the prompt (cached): it is **not "read"**. `auto.md` is read on demand |
 | **0** | `AGENTS.md` and skill descriptions | Stable rules; cached prefix |
 | **Low** | One `execute` call that returns a digest | Groups reads/searches in 1 step |
 | **Medium** | Subagent with fresh context | Heavy reading; the parent receives only the summary |
@@ -193,8 +198,10 @@ From cheapest to most expensive; always use the cheapest that works:
 
 Keys applied in this workshop:
 
-- **Rules in cache, not in a loop**: the critical bits live in the prompt
-  (`instructions`), not in a file the agent must open every turn.
+- **Rules in cache, not in a loop**: `rules.md` lives in the prompt
+  (`instructions`), not in a file the agent must open every turn. The **volatile**
+  digest `auto.md` is deliberately *not* always-on — it is read only when needed,
+  so a simple "hello" doesn't pay for it.
 - **One intention, one call**: `execute` for several independent reads.
 - **Don't reopen** files with the same hash (`files.md`).
 - **Delegate** bulk reading to `explore`/`researcher` with bounded output.
@@ -234,12 +241,12 @@ Practical rules:
 - The reasoning level (`#high` vs `#xhigh`) changes generated reasoning tokens,
   not the ~5–7k fixed input.
 
-> Finding: the `instructions` config entries (`rules.md`/`auto.md`) were **not
-> present in the assembled prompt** in this V2 build — verified through the
-> HTTP API (`/instructions/entries` empty) and the session store (the
-> `core/instructions` blob held only the two `AGENTS.md`). The always-on
-> instruction payload was therefore just `AGENTS.md`. Re-verify after a restart
-> if the error-memory auto-rules matter.
+> Note on `instructions`: in this V2 build the config entries were **not present
+> in the assembled prompt** — verified through the HTTP API
+> (`/instructions/entries` was empty) and the session store (the
+> `core/instructions` blob held only the two `AGENTS.md`). After this change only
+> `rules.md` is declared there and `auto.md` moved to on-demand. Re-verify after
+> a restart whether the `instructions` entries load at all in your build.
 
 ---
 
@@ -327,8 +334,12 @@ On install (global) it also creates the store
 - OpenCode's root `model` **does not keep the variant**; pin it with the agent,
   a command, or `/models`.
 - DeepSeek/GLM/MiMo have **200k** of context: to dump many reads, use the 1M ones
-  (longcat, nemotron-ultra, space-bunny, muse-spark).
-- Free models may have **usage/rate limits** and change without warning.
+  (longcat, nemotron-ultra, space-bunny).
+- Free models may have **usage/rate limits** and change without warning — they
+  also **disappear**: `muse-spark-1.3-contributor-free` was removed mid-project,
+  which makes any agent pinned to it fail to start. Re-check the catalog with
+  `/catalogo` (or `/modelos`) after an outage and repoint the affected agent in
+  its `.md` **and** in `orchestrator/models.json`.
 - On Windows, `npx.ps1` is blocked by execution policy: local MCPs must use
   `cmd /c npx`.
 - `warming` is disabled by default (consumes requests).
@@ -393,7 +404,34 @@ Coexistence notes:
   `~/.config/opencode/orchestrator/rules.md`, your own chains to
   `models.json`, and your cross-project facts to the MCP memory.
 
-## 13. Possible next steps
+## 13. Design principles (borrowed from real frameworks)
+
+The workflow and the token budget are based on evidence from working
+multi-agent projects — OpenCode Swarm, OpenGiraffe, Fable Orchestrator, the
+Claude Code orchestration kit — and Anthropic's context-engineering guide. Full
+write-up: [`docs/research.md`](docs/research.md).
+
+- **Slim always-on text, detail on demand.** `AGENTS.md` files hold only rules;
+  the rationale lives in `docs/` (never loaded) and in skills (loaded only when
+  used).
+- **Everything always-on is paid by every subagent too**, so the instruction
+  files stay short.
+- **Only the agent that edits can edit.** Planners, `critic`, `researcher` and
+  `vision` are read-only; their denied tools also drop out of the prompt.
+- **Workers cannot spawn workers.** `subagent` is denied for all 10 workers;
+  only `orchestrator` delegates.
+- **Bounded output.** Reports are ≤40 lines; long verbatim goes to
+  `.orchestrator/scratch/` (git-ignored) and the report carries the path.
+- **Batch the mechanical work.** Five reads/searches are one call with a
+  checklist, not five subagents.
+- **State in files, not in the chat** (`.orchestrator/memory/`), so agents share
+  facts without inflating the conversation.
+- **Different model families for make vs. verify** (`creator` vs. `critic`).
+
+What we deliberately do **not** copy (tmux panes, extra budget-guard plugins,
+large agent rosters) is listed at the end of [`docs/research.md`](docs/research.md).
+
+## 14. Possible next steps
 
 - Add `playwright`/`github` (MCP) as needed.
 - Automate `map.md`/`files.md` with a `git hook` or plugin.

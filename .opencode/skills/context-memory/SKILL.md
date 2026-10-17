@@ -85,7 +85,7 @@ de herramienta y lo guarda **fuera del repositorio**, en un almacén global:
 ```text
 ~/.config/opencode/orchestrator/
 ├── rules.md      # reglas curadas · se cargan como `instructions` (caché)
-├── auto.md       # digest de errores recurrentes · también en `instructions`
+├── auto.md       # digest de errores · se lee ON-DEMAND (no en el prompt)
 └── errors.jsonl  # registro crudo (append-only, con el proyecto de origen)
 ```
 
@@ -93,9 +93,10 @@ de herramienta y lo guarda **fuera del repositorio**, en un almacén global:
 
 - **Nada se escribe dentro del proyecto**, así que no puedes commitear basura por
   accidente.
-- `rules.md` y `auto.md` están declarados en `instructions`, o sea que van en el
-  **prefijo cacheado del prompt**: el modelo ya los tiene, **no gasta llamadas ni
-  razonamiento en "leer reglas"**.
+- `rules.md` está declarado en `instructions`, o sea que va en el **prefijo
+  cacheado del prompt**: el modelo ya lo tiene, **no gasta llamadas ni
+  razonamiento en "leer reglas"**. `auto.md` (volátil) **no** va siempre: se lee
+  solo antes de reintentar algo que falló, para no pagarlo en cada turno.
 - Un fallo de shell con salida `exit != 0` llega como `status: "completed"` (no
   como `status: "error"`); el plugin detecta ambos casos.
 - Errores equivalentes comparten **firma** (mensaje normalizado), así que el
@@ -103,9 +104,9 @@ de herramienta y lo guarda **fuera del repositorio**, en un almacén global:
 
 **Protocolo:**
 
-1. **No leas `rules.md`/`auto.md` "por si acaso"**: ya están en tu contexto. Actúa.
-2. **Antes de reintentar** algo que falló, revisa `auto.md` (ya lo tienes) y, si
-   necesitas el detalle, busca la firma en `errors.jsonl`. Si ya falló igual,
+1. **No leas `rules.md` "por si acaso"**: ya está en tu contexto. Actúa.
+2. **Antes de reintentar** algo que falló, **lee `auto.md`** (está on-demand) y,
+   si necesitas el detalle, busca la firma en `errors.jsonl`. Si ya falló igual,
    cambia de enfoque.
 3. **Al aprender una lección**, añádela como regla corta a `rules.md` (o usa
    `/errores`, que promueve los recurrentes de `auto.md`/`errors.jsonl`).
@@ -116,7 +117,7 @@ Orden de lo más barato a lo más caro. Usa siempre lo más barato que funcione.
 
 | Coste | Mecanismo | Cuándo |
 | --- | --- | --- |
-| **0** | `rules.md`/`auto.md` vía `instructions` (prefijo cacheado) | Siempre: ya está en contexto |
+| **0** | `rules.md` vía `instructions` (prefijo cacheado) | Siempre: ya está en contexto |
 | **0** | `AGENTS.md` y skills | Reglas estables; se cachean |
 | **Bajo** | Una llamada a `execute` que devuelve un **digest** | Resumen de memoria/multi-read en 1 paso |
 | **Medio** | Subagente con contexto fresco | Trabajo pesado de lectura; el padre recibe solo el resumen |

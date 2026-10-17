@@ -11,6 +11,9 @@ permissions:
   - action: shell
     resource: "*"
     effect: allow
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **CREADOR ALTERNO**. Mismas reglas que el `creator`, pero con otro

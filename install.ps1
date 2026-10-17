@@ -8,8 +8,10 @@
 
     - Ajusta la ruta del archivo de memoria MCP a una ubicación absoluta.
     - Crea el almacén global de errores (~/.config/opencode/orchestrator/) y
-      registra sus reglas en `instructions` para que se carguen en el prefijo
-      cacheado del prompt (sin gastar tool calls ni razonamiento).
+      registra SUS REGLAS (rules.md) en `instructions` para que se carguen en el
+      prefijo cacheado del prompt (sin gastar tool calls ni razonamiento).
+      El digest `auto.md` NO se carga siempre: se consulta on-demand (es volátil
+      y grande); cargarlo cada turno seria gastar tokens "por gusto".
     - Instala el manifiesto de modelos (`models.json`) con familias y cadenas de
       respaldo, que usa el plugin `model-fallback` para rotar cuando un modelo
       se agota.
@@ -83,11 +85,11 @@ if (Test-Path $globalConfig) {
 }
 $memoryFile = (Join-Path $Destination "memory\graph.jsonl") -replace "\\", "\\"
 $rulesJson = $rules -replace "\\", "\\"
-$autoJson = $auto -replace "\\", "\\"
 $content = Get-Content (Join-Path $Source "opencode.jsonc") -Raw
 $content = $content.Replace(".orchestrator/memory/graph.jsonl", $memoryFile)
 $anchor = '"$schema": "https://opencode.ai/config.json",'
-$instructions = $anchor + "`n  `"instructions`": [`"$rulesJson`", `"$autoJson`"],"
+# Solo rules.md va siempre en el prompt; auto.md es on-demand (ahorra tokens).
+$instructions = $anchor + "`n  `"instructions`": [`"$rulesJson`"],"
 if ($content.Contains($anchor)) {
   $content = $content.Replace($anchor, $instructions)
   Write-Host "  [ok] instructions (reglas en prompt cacheado)" -ForegroundColor Green
@@ -98,14 +100,15 @@ if ($content.Contains($anchor)) {
 [System.IO.File]::WriteAllText($globalConfig, $content, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "  [ok] opencode.jsonc (global)" -ForegroundColor Green
 
-# 5. Instrucciones globales (solo si no existen)
+# 5. Instrucciones globales (respalda el anterior y escribe el actual)
 $globalAgents = Join-Path $Destination "AGENTS.md"
-if (-not (Test-Path $globalAgents)) {
-  Copy-Item (Join-Path $Source "global\AGENTS.md") $globalAgents
-  Write-Host "  [ok] AGENTS.md (global)" -ForegroundColor Green
-} else {
-  Write-Host "  [i] AGENTS.md global ya existe, no se toca" -ForegroundColor Yellow
+if (Test-Path $globalAgents) {
+  $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+  Copy-Item $globalAgents "$globalAgents.bak-$stamp"
+  Write-Host "  [i] respaldo: AGENTS.md.bak-$stamp" -ForegroundColor Yellow
 }
+Copy-Item (Join-Path $Source "global\AGENTS.md") $globalAgents -Force
+Write-Host "  [ok] AGENTS.md (global, corto por diseno)" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "Listo. En OpenCode:" -ForegroundColor Cyan

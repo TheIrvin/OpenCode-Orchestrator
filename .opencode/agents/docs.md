@@ -1,13 +1,16 @@
 ---
 description: Redactor de documentación. Escribe READMEs, guías, changelogs y comentarios. Modelo con buen manejo de texto largo.
 mode: subagent
-model: opencode/muse-spark-1.3-contributor-free#medium
+model: opencode/beam-free#medium
 color: "#ca8a04"
 steps: 24
 permissions:
   - action: edit
     resource: "*"
     effect: allow
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **DOCUMENTADOR**. Escribes documentación clara y honesta.

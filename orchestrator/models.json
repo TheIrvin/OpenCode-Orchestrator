@@ -1,5 +1,5 @@
 {
-  "$comment": "Catálogo de modelos gratuitos + familias + cadenas de respaldo por rol. Fuente única para el plugin model-fallback y /modelos.",
+  "$comment": "Catálogo de modelos gratuitos + familias + cadenas de respaldo por rol. Fuente única para el plugin model-fallback y /modelos. Los modelos free CADUCAN: verifica el catálogo real con /catalogo antes de fiarte de un id.",
   "provider": "opencode",
   "cooldownSeconds": 300,
   "families": {
@@ -14,14 +14,13 @@
     "meituan": ["longcat-2.5-preview-free"],
     "beam": ["beam-free"],
     "spacebunny": ["space-bunny-free"],
-    "muse": ["muse-spark-1.3-contributor-free"],
     "bigpickle": ["big-pickle"]
   },
   "roles": {
     "orchestrator": [
       "beam-free#high",
       "space-bunny-free#high",
-      "muse-spark-1.3-contributor-free#high",
+      "glm-5.3-flash-free#high",
       "longcat-2.5-preview-free",
       "nemotron-3-ultra-free"
     ],
@@ -49,8 +48,8 @@
       "longcat-2.5-preview-free"
     ],
     "critic": [
-      "muse-spark-1.3-contributor-free#high",
       "space-bunny-free#high",
+      "beam-free#high",
       "longcat-2.5-preview-free",
       "glm-5.3-flash-free#high",
       "deepseek-v4.1-flash-free#high"
@@ -63,21 +62,21 @@
     ],
     "planner": [
       "space-bunny-free#high",
-      "muse-spark-1.3-contributor-free#high",
+      "beam-free#high",
       "glm-5.3-flash-free#high",
       "longcat-2.5-preview-free",
       "nemotron-3-ultra-free"
     ],
     "plan": [
       "space-bunny-free#high",
-      "muse-spark-1.3-contributor-free#high",
+      "beam-free#high",
       "glm-5.3-flash-free#high",
       "longcat-2.5-preview-free",
       "nemotron-3-ultra-free"
     ],
     "planner-deep": [
       "space-bunny-free#max",
-      "muse-spark-1.3-contributor-free#xhigh",
+      "beam-free#xhigh",
       "glm-5.3-flash-free#max",
       "nemotron-3-ultra-free",
       "longcat-2.5-preview-free"
@@ -86,7 +85,7 @@
       "nemotron-3-ultra-free",
       "longcat-2.5-preview-free",
       "space-bunny-free#xhigh",
-      "muse-spark-1.3-contributor-free#high",
+      "beam-free#high",
       "glm-5.3-flash-free#high"
     ],
     "explore": [
@@ -97,18 +96,18 @@
     ],
     "researcher": [
       "longcat-2.5-preview-free",
-      "muse-spark-1.3-contributor-free#high",
+      "glm-5.3-flash-free#high",
       "space-bunny-free#high",
       "nemotron-3-ultra-free"
     ],
     "vision": [
       "nemotron-3.5-super-vl-free#high",
-      "muse-spark-1.3-contributor-free#high",
+      "longcat-2.5-preview-free",
       "mimo-v2.6-flash-free",
       "glm-5.3-flash-free#high"
     ],
     "docs": [
-      "muse-spark-1.3-contributor-free#medium",
+      "beam-free#medium",
       "longcat-2.5-preview-free",
       "space-bunny-free#medium",
       "glm-5.3-flash-free#high"
@@ -116,7 +115,7 @@
     "general": [
       "beam-free#high",
       "space-bunny-free#high",
-      "muse-spark-1.3-contributor-free#high",
+      "glm-5.3-flash-free#high",
       "longcat-2.5-preview-free"
     ]
   }

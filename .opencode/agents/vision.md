@@ -11,6 +11,9 @@ permissions:
   - action: shell
     resource: "*"
     effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **ANALISTA VISUAL**. Describes e interpretas contenido multimodal.

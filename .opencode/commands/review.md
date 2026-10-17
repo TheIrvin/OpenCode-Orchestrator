@@ -1,7 +1,7 @@
 ---
 description: Revisión crítica independiente de los cambios actuales
 agent: critic
-model: opencode/muse-spark-1.3-contributor-free#high
+model: opencode/space-bunny-free#high
 subagent: false
 ---
 

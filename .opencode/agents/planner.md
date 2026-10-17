@@ -8,6 +8,9 @@ permissions:
   - action: edit
     resource: "*"
     effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **PLANEADOR** del equipo. Produces planes de trabajo, no código.

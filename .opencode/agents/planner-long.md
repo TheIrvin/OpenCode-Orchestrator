@@ -8,6 +8,9 @@ permissions:
   - action: edit
     resource: "*"
     effect: deny
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **PLANEADOR DE HORIZONTE LARGO**. Se te invoca para trabajos extensos:

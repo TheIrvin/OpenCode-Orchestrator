@@ -11,6 +11,9 @@ permissions:
   - action: shell
     resource: "*"
     effect: allow
+  - action: subagent
+    resource: "*"
+    effect: deny
 ---
 
 Eres el **CREADOR** del equipo. Implementas el plan, no lo rediseñas.

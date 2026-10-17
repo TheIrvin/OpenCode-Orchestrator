@@ -22,6 +22,9 @@ yarn-error.log*
 .orchestrator/memory/*.jsonl
 .orchestrator/memory/plugin-*
 
+# --- Scratch transitorio de tareas (informes/diffs verbatim, acotado) ---
+.orchestrator/scratch/
+
 # --- Credenciales / entorno: NUNCA subir ---
 .env
 .env.*

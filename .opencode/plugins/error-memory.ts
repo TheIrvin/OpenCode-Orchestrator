@@ -5,16 +5,16 @@
  *   ~/.config/opencode/orchestrator/ ), nunca dentro del repositorio del usuario:
  *
  *   errors.jsonl  → registro completo (append-only, con el proyecto de origen)
- *   auto.md       → digest de errores recurrentes (≤15 líneas), cargado por
- *                   `instructions` como parte del prompt cacheado
+ *   auto.md       → digest de errores recurrentes (≤15 líneas), leído
+ *                   ON-DEMAND (ya no va siempre en el prompt: ahorra tokens)
  *
  * El objetivo es doble:
- *   1. Que un error no se repita (queda registrado y, los recurrentes, a la
- *      vista del modelo sin gastar tool calls).
+ *   1. Que un error no se repita (queda registrado y, los recurrentes, en
+ *      `auto.md`, que el modelo lee on-demand antes de reintentar).
  *   2. No ensuciar ningún proyecto con archivos que puedan acabar en un commit.
  *
- * `auto.md` solo se reescribe cuando cambia su contenido, para no invalidar la
- * caché de prompt sin motivo.
+ * `auto.md` solo se reescribe cuando cambia su contenido (no lo reescribe por
+ * gusto; se lee on-demand antes de reintentar un fallo).
  *
  * Un fallo llega de dos formas:
  *   - `status: "error"` (error duro de la herramienta).

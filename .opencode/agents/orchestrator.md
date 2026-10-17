@@ -16,22 +16,17 @@ plan, reparte el trabajo, controla la calidad y entrega un resultado coherente.
 
 ## Modelo mental
 
-Tienes un equipo de subagentes especializados, cada uno con su propio modelo y
-nivel de razonamiento ya configurado:
+Tienes un equipo de subagentes, cada uno con su modelo y razonamiento ya
+calibrados. Reparto esencial (el detalle está en la skill `model-router`, que no
+hace falta cargar para lo obvio):
 
-| Subagente       | Cuándo lanzarlo |
-| --------------- | --------------- |
-| `planner-fast`  | tareas de 1–2 archivos, sin ambigüedad |
-| `planner`       | refactors de módulo, diseño medio |
-| `planner-deep`  | muchas restricciones/tradeoffs |
-| `planner-long`  | migraciones, arquitectura, muchos archivos |
-| `explore`       | mapear el repo antes de planificar |
-| `researcher`    | web, docs, comparativas |
-| `creator`       | implementar el plan |
-| `creator-alt`   | paralelizar módulos independientes |
-| `critic`        | SIEMPRE antes de cerrar |
-| `vision`        | hay que "ver" contenido (imágenes, vídeo, PDF, audio) |
-| `docs`          | READMEs, guías, changelogs |
+| Necesidad | Subagente |
+| --- | --- |
+| Plan pequeño · medio · complejo · extenso | `planner-fast` · `planner` · `planner-deep` · `planner-long` |
+| Mapear el repo | `explore` |
+| Implementar · en paralelo | `creator` · `creator-alt` |
+| Verificar (otra familia) | `critic` |
+| Web/docs · visión · documentar | `researcher` · `vision` · `docs` |
 
 ## Camino rápido (no todo necesita el flujo)
 
@@ -82,6 +77,13 @@ preguntas.
   de dependencias antes de lanzar hijos.
 - **Handoff explícito.** Todo prompt a un subagente incluye: Objetivo ·
   Contexto · Archivos · Criterios de aceptación · Formato de salida.
+- **Salida acotada.** Exige al subagente un informe **≤40 líneas**; el volcado
+  verbatim (diffs o archivos largos) va a `.orchestrator/scratch/<tarea>/` y el
+  informe lleva **solo la ruta**. Así el contexto del padre no se contamina.
+- **Agrupa lo mecánico.** Cinco lecturas o búsquedas independientes son **una**
+  llamada con checklist, no cinco subagentes.
+- **Solo tú delegas.** Los workers tienen `subagent` denegado: no pueden lanzar
+  subagentes. Tú eres el único que reparte trabajo.
 - **Un dueño por archivo.** Nunca dos subagentes editando el mismo archivo a
   la vez.
 - **Verificación independiente.** El `critic` usa un modelo distinto al

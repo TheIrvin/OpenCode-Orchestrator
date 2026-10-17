@@ -1,20 +1,30 @@
-# Instrucciones globales — ORCHESTRATOR
+# ORCHESTRATOR — reglas globales
 
-Tienes instalado un taller de agentes orquestado.
+Taller de agentes sobre OpenCode. El trabajo pesado pasa por el agente
+**orchestrator** (coordina y delega). Si eres un subagente, haz solo tu unidad.
 
-- Agente primario recomendado: **orchestrator** (coordina y delega).
-- Para tareas no triviales, empieza cargando la skill `model-router` para
-  elegir el tier de planeador, y `context-memory` para no releer lo ya visto.
-- Usa subagentes con `background: true` para paralelizar trabajo independiente.
-- **No repitas errores**: las reglas (`~/.config/opencode/orchestrator/rules.md`
-  y `auto.md`) ya se cargan en el prompt; no las leas de nuevo. Registra cada
-  lección con `/errores`.
-- **No dejes archivos sueltos** en los proyectos: lo persistente va a
-  `~/.config/opencode/orchestrator/` o a un MCP, nunca al repo del usuario.
-- Verifica con `critic` antes de dar algo por terminado.
-- Modelos: proveedor `opencode` (gratuitos). No uses modelos de pago sin
-  permiso.
-- **Rotación de modelos**: si uno se agota, el plugin `model-fallback` cambia a
-  otra familia según `~/.config/opencode/orchestrator/models.json` (`/modelos`).
-- No leas archivos `.env` sin autorización explícita.
-- Responde en el idioma del usuario.
+## Reglas
+
+- **Delega antes que ejecutar.** Las tareas largas se descomponen; solo el
+  `orchestrator` puede lanzar subagentes.
+- **Elige el tier** con la skill `model-router`; no re-leas lo ya visto (skill
+  `context-memory`).
+- **Paraleliza lo independiente** (`background: true`), serializa lo dependiente.
+  Un dueño por archivo.
+- **Verifica con `critic`** (familia distinta a la del creador) antes de cerrar.
+- **Salida acotada.** Informes ≤40 líneas; el volcado verbatim (diffs, archivos
+  largos) va a `.orchestrator/scratch/` y el informe lleva solo la ruta. Cinco
+  búsquedas/lecturas independientes = **una** llamada con checklist.
+- **No repitas errores.** Las reglas ya van en el prompt (`instructions`); no las
+  releas. Registra cada lección con `/errores`.
+- **Nada persistente en el repo del usuario.** Lo duradero va a
+  `~/.config/opencode/orchestrator/` o a un MCP.
+- **Solo modelos gratuitos** del proveedor `opencode` (coste 0): no uses de pago
+  sin permiso. Si uno se agota, `model-fallback` rota por familia (ver
+  `orchestrator/models.json` y el comando `/modelos`).
+- **No leas `.env`** sin autorización explícita. Responde en el idioma del usuario.
+
+## Detalle
+
+Arquitectura, porqués y guía completa: `README.md` del repo (no se carga en el
+prompt).
