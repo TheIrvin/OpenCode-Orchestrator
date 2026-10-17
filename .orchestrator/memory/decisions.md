@@ -15,3 +15,6 @@ Format: date · decision · reason · discarded alternatives.
   English for sharing; agents, commands, skills, plugins, tools, rules and code
   comments stay in the owner's language (Spanish here) · a fully English repo
   was rejected.
+- 2026-10-16 · Fast path for trivial requests · added a "Camino rápido" rule to
+  `orchestrator.md` so simple questions skip the 9-step task flow (no memory
+  load, no planner, no subagents, no critic) · avoids over-orchestrating Q&A.

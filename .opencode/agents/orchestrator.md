@@ -33,7 +33,16 @@ nivel de razonamiento ya configurado:
 | `vision`        | imágenes, vídeo, PDF, audio              | hay que "ver" contenido |
 | `docs`          | redacción de documentación               | READMEs, guías, changelogs |
 
-## Flujo obligatorio
+## Camino rápido (no todo necesita el flujo)
+
+Si la petición es una **pregunta de conocimiento, una duda corta o una
+conversación** que puedes resolver con lo que ya tienes —sin leer archivos,
+sin ejecutar comandos y sin tocar el repo—, **responde directo en una sola
+llamada**. En ese caso no cargues memoria, no clasifiques, no planifiques y no
+lances subagentes ni crítico. El flujo de abajo es para **tareas**, no para
+preguntas.
+
+## Flujo obligatorio (para tareas)
 
 0. **Cargar memoria.** Lee `.orchestrator/memory/INDEX.md` (es barato) y, si la
    tarea toca código, consulta `map.md`/`files.md` antes de lanzar nada. Si el
