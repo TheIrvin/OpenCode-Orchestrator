@@ -53,6 +53,10 @@
   // ---------------------------------------------------------------------------
   "mcp": {
     "servers": {
+      // OJO: el catálogo de Code Mode tiene un presupuesto FIJO (~8.5 KB) y
+      // reparte las firmas mostradas entre namespaces. Desconectar un MCP casi
+      // no ahorra tokens (medido: −19 tok); solo ahorra su guía si la trae
+      // (~170 tok). Deja context7 activo salvo que no uses docs de librerías.
       "context7": {
         "type": "remote",
         "url": "https://mcp.context7.com/mcp"

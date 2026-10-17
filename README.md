@@ -202,6 +202,45 @@ Keys applied in this workshop:
   biggest waste).
 - **`warming` disabled** by default (only useful in long sessions with pauses).
 
+#### Measured fixed cost (real data, from OpenCode's own store)
+
+Every request pays a fixed prompt before doing any work. Measured by reading
+the `tokens` field of each session message in `opencode.db`:
+
+| Path | Input tokens (cold) | Note |
+| --- | ---: | --- |
+| `ask` agent, `hola` | **4,840** | Light primary, no orchestration |
+| `orchestrator`, `hola` | **7,193** | Full flow, more tool schemas |
+
+Where the fixed prompt goes (measured/derived):
+
+- **Code Mode catalog ≈ 2.1k tokens** (browser 45 tools, context7, memory,
+  opencode). It is **budget-limited to ~12 signatures (~8.5 KB)** and
+  redistributes them across namespaces, so **disconnecting an MCP barely saves
+  anything** (measured: −19 tokens for context7; only its `mcp_instructions`,
+  ~170 tokens, disappear). Removing MCPs is *not* a real lever.
+- **Agent system prompt**: `orchestrator.md` (~1.2k) vs `ask.md` (~0.15k).
+- **Tool schemas**: denying unused tools shrinks the prompt; the `ask` agent
+  denies `edit`/`subagent`, which is most of the ~2.3k gap vs `orchestrator`.
+- **`AGENTS.md`** (global + project) ≈ 0.7k.
+- Base system prompt + native tool schemas: the rest.
+
+Practical rules:
+
+- For questions/chat use the **`ask` agent** or `/ask`; it saves ~2.4k per call
+  versus the orchestrator.
+- **Prompt cache** makes repeat turns almost free: a warm turn shows
+  `input ≈ 47` with `cache.read ≈ 50k`.
+- The reasoning level (`#high` vs `#xhigh`) changes generated reasoning tokens,
+  not the ~5–7k fixed input.
+
+> Finding: the `instructions` config entries (`rules.md`/`auto.md`) were **not
+> present in the assembled prompt** in this V2 build — verified through the
+> HTTP API (`/instructions/entries` empty) and the session store (the
+> `core/instructions` blob held only the two `AGENTS.md`). The always-on
+> instruction payload was therefore just `AGENTS.md`. Re-verify after a restart
+> if the error-memory auto-rules matter.
+
 ---
 
 ## 6. MCP
